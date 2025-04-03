@@ -1,0 +1,21 @@
+{
+  "name": "serverless-examples",
+  "version": "0.0.0",
+  "description": "A compilation of several examples and boilerplates",
+  "scripts": {
+    "lint": "eslint .",
+    "docs": "node generate-readme.js",
+    "validate": "node validate.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "gray-matter": "^4.0.3",
+    "markdown-magic": "^0.1.25"
+  },
+  "devDependencies": {
+    "serverless-python-requirements": "^6.1.2"
+  }
+}

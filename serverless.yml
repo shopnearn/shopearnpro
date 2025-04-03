@@ -1,0 +1,93 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: sapientum8
+service: aws-python-http-api
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+  domain: svroic.org
+  s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
+
+stages:
+  default:
+    params:
+      domain: ${sls:stage}.svroic.org
+  prod:
+    params:
+      domain: svroic.org
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [ LibTable, Arn ]
+        - Effect: Allow
+          Action:
+            - s3:*
+          Resource: ${self:custom.s3_role_resource}
+  environment:
+    LIB_TABLE: Library_${sls:stage}
+    LOG_LEVEL: INFO
+    VAR1: ${file(./config.${sls:stage}.json):VAR1}
+
+package:
+  individually: true
+  include:
+    - '!./**'
+    - './service-cart/hello/**'
+    - './service-cart/howdy/**'
+  exclude:
+    - '**'
+
+functions:
+  hello:
+    handler: index.handler
+    module: service-cart/hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  howdy:
+    handler: index.handler
+    module: service-cart/howdy
+    events:
+      - httpApi:
+          path: /howdy
+          method: get
+
+resources:
+  - Resources:
+      LibTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: pk
+              AttributeType: S
+            - AttributeName: sk
+              AttributeType: S
+          KeySchema:
+            - AttributeName: pk
+              KeyType: HASH
+            - AttributeName: sk
+              KeyType: RANGE
+          BillingMode: PAY_PER_REQUEST
+          TableName: Library_${sls:stage}
+  - ${file(cloudform.yml)}
+  - Outputs:
+      Domain:
+        Value: "https://${sls:stage}.${self:custom.domain}"
+
+plugins:
+  - serverless-python-requirements
