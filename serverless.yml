@@ -1,20 +1,20 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: sapientum8
-service: aws-python-http-api
+service: shopearn-cart-api
 
 custom:
   pythonRequirements:
     dockerizePip: non-linux
-  domain: svroic.org
+  domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
 
 stages:
   default:
     params:
-      domain: ${sls:stage}.svroic.org
+      domain: ${sls:stage}.shopearnpro.com
   prod:
     params:
-      domain: svroic.org
+      domain: shopearnpro.com
 
 provider:
   name: aws

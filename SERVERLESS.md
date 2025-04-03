@@ -1,0 +1,29 @@
+# Install Serverless Framework
+### Install NPM packages
+    npm install -g serverless
+
+
+# Useful NPM commands
+### list packages
+    npm list
+# Useful AWS commands
+### List AWS profiles
+    aws configure list-profiles
+### List details of the AWS profile
+    aws configure list
+
+# Common Serverless Framework commands
+
+serverless invoke local --function service-cart/hello --aws-profile shopnearn-dev
+
+serverless deploy --aws-profile shopnearn-dev
+
+serverless remove --aws-profile shopnearn-dev
+
+serverless deploy list --aws-profile shopnearn-dev
+
+serverless deploy list functions --aws-profile shopnearn-dev
+
+serverless logs --function=hello --aws-profile shopnearn-dev --tail
+
+serverless invoke --function hello --aws-profile shopnearn-dev
