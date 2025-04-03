@@ -16,7 +16,8 @@
 
 serverless invoke local --function service-cart/hello --aws-profile shopnearn-dev
 
-serverless deploy --aws-profile shopnearn-dev
+### deploy the serverless application 
+    serverless deploy --aws-profile shopnearn-dev
 
 serverless remove --aws-profile shopnearn-dev
 
