@@ -4,6 +4,11 @@ service: service-cart
 
 custom:
   pythonRequirements:
+    slim: true
+    noDeploy:
+      - boto3
+    useDownloadCache: false
+    useStaticCache: false
     dockerizePip: non-linux
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
@@ -19,6 +24,7 @@ stages:
 provider:
   name: aws
   runtime: python3.13
+  architecture: x86_64
   region: us-east-1
   iam:
     role:
@@ -32,36 +38,43 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ LibTable, Arn ]
+            - Fn::GetAtt: [ MarketTable, Arn ]
         - Effect: Allow
           Action:
             - s3:*
           Resource: ${self:custom.s3_role_resource}
   environment:
-    LIB_TABLE: Market_${sls:stage}
+    DB_TABLE: Market_${sls:stage}
     LOG_LEVEL: INFO
     VAR1: ${file(./config.${sls:stage}.json):VAR1}
 
 package:
-  individually: true
+  individually: false
   include:
-    - '!./src/**'
-    - './src/hello/**'
-    - './src/howdy/**'
+    - '!./**'
+    - './lambda/hello/**'
+    - './lambda/howdy/**'
   exclude:
     - '**'
 
 functions:
   hello:
-    handler: index.handler
-    module: src/hello
+    handler: lambda/hello/index.handler
+    # module: lambda/hello
+    package:
+      patterns:
+        - lambda/hello/**
     events:
       - httpApi:
-          path: /{proxy+}
-          method: any
+          path: /
+          method: get
+
   howdy:
-    handler: index.handler
-    module: src/howdy
+    handler: lambda/howdy/index.handler
+    # module: lambda/howdy
+    package:
+      patterns:
+        - lambda/howdy/**
     events:
       - httpApi:
           path: /howdy
@@ -69,7 +82,7 @@ functions:
 
 resources:
   - Resources:
-      LibTable:
+      MarketTable:
         Type: AWS::DynamoDB::Table
         Properties:
           AttributeDefinitions:
@@ -83,7 +96,7 @@ resources:
             - AttributeName: sk
               KeyType: RANGE
           BillingMode: PAY_PER_REQUEST
-          TableName: Library_${sls:stage}
+          TableName: Market_${sls:stage}
   - ${file(cloudform.yml)}
   - Outputs:
       Domain:

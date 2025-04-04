@@ -1,10 +1,9 @@
 import json
 import boto3
-import numpy
 
 def handler(event, context):
 
-    print(numpy.max([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
+    print(max([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
     v = boto3.__version__
 
     body = {
