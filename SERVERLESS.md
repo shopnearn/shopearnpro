@@ -18,6 +18,11 @@ serverless invoke local --function service-cart/hello --aws-profile shopnearn-de
 
 ### deploy the serverless application 
     serverless deploy --aws-profile shopnearn-dev
+    serverless deploy --aws-profile shopnearn-dev --service=service-cart
+
+serverless print --aws-profile shopnearn-dev
+
+serverless info --aws-profile shopnearn-dev
 
 serverless remove --aws-profile shopnearn-dev
 

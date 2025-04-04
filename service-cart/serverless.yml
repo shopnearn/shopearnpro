@@ -1,6 +1,6 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: sapientum8
-service: shopearn-cart-api
+service: service-cart
 
 custom:
   pythonRequirements:
@@ -38,30 +38,30 @@ provider:
             - s3:*
           Resource: ${self:custom.s3_role_resource}
   environment:
-    LIB_TABLE: Library_${sls:stage}
+    LIB_TABLE: Market_${sls:stage}
     LOG_LEVEL: INFO
     VAR1: ${file(./config.${sls:stage}.json):VAR1}
 
 package:
   individually: true
   include:
-    - '!./**'
-    - './service-cart/hello/**'
-    - './service-cart/howdy/**'
+    - '!./src/**'
+    - './src/hello/**'
+    - './src/howdy/**'
   exclude:
     - '**'
 
 functions:
   hello:
     handler: index.handler
-    module: service-cart/hello
+    module: src/hello
     events:
       - httpApi:
-          path: /
-          method: get
+          path: /{proxy+}
+          method: any
   howdy:
     handler: index.handler
-    module: service-cart/howdy
+    module: src/howdy
     events:
       - httpApi:
           path: /howdy
