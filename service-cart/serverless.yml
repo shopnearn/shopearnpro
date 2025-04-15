@@ -9,7 +9,7 @@ custom:
       - boto3
     useDownloadCache: false
     useStaticCache: false
-    dockerizePip: non-linux
+    # dockerizePip: non-linux
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
 
@@ -49,29 +49,30 @@ provider:
     VAR1: ${file(./config.${sls:stage}.json):VAR1}
 
 package:
-  individually: false
+  individually: true
   include:
     - '!./**'
-    - './lambda/hello/**'
+    - './lambda/cart/**'
     - './lambda/howdy/**'
   exclude:
     - '**'
 
 functions:
-  hello:
-    handler: lambda/hello/index.handler
-    # module: lambda/hello
+  cart:
+    handler: index.handler
+    module: lambda/cart
+    snapStart: true
     package:
       patterns:
-        - lambda/hello/**
+        - lambda/cart/**
     events:
       - httpApi:
-          path: /
+          path: /cart
           method: get
 
   howdy:
-    handler: lambda/howdy/index.handler
-    # module: lambda/howdy
+    handler: index.handler
+    module: lambda/howdy
     package:
       patterns:
         - lambda/howdy/**
