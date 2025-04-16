@@ -3,13 +3,6 @@ org: sapientum8
 service: service-cart
 
 custom:
-  pythonRequirements:
-    slim: true
-    noDeploy:
-      - boto3
-    useDownloadCache: false
-    useStaticCache: false
-    # dockerizePip: non-linux
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
 
@@ -52,9 +45,11 @@ package:
   individually: true
   include:
     - '!./**'
-    - './lambda/cart/**'
-    - './lambda/howdy/**'
-    - './layers/data/**'
+    - './lambda/cart/*.py'
+    - './lambda/page/*.py'
+    - './layers/data/*.py'
+  exclude:
+    - '**'
 
 functions:
   cart:
@@ -65,21 +60,36 @@ functions:
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/cart/**
+        - lambda/cart/*.py
+      exclude:
+        - '**'
     events:
       - httpApi:
           path: /cart
           method: get
-
-  howdy:
+      -  httpApi:
+          path: /cart/{id}
+          method: get
+      - httpApi:
+          path: /cart/{id}
+          method: post
+      - httpApi:
+          path: /cart/{id}
+          method: put
+      - httpApi:
+          path: /cart/{id}
+          method: delete
+  page:
     handler: index.handler
-    module: lambda/howdy
+    module: lambda/page
     package:
       patterns:
-        - lambda/howdy/**
+        - lambda/page/*.py
+      exclude:
+        - '**'
     events:
       - httpApi:
-          path: /howdy
+          path: /page
           method: get
 
 resources:
@@ -112,6 +122,8 @@ layers:
     package:
       patterns:
         - '**/*.py'
+      exclude:
+        - '**'
     compatibleRuntimes:
       - python3.13
     compatibleArchitectures:
