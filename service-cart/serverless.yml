@@ -54,14 +54,15 @@ package:
     - '!./**'
     - './lambda/cart/**'
     - './lambda/howdy/**'
-  exclude:
-    - '**'
+    - './layers/data/**'
 
 functions:
   cart:
     handler: index.handler
     module: lambda/cart
     snapStart: true
+    layers:
+      - !Ref DataLambdaLayer
     package:
       patterns:
         - lambda/cart/**
@@ -102,6 +103,23 @@ resources:
   - Outputs:
       Domain:
         Value: "https://${sls:stage}.${self:custom.domain}"
+
+layers:
+  data: # DataLambdaLayer
+    path: layer-data
+    name: layerData-${sls:stage}
+    description: DataLambdaLayer for ${sls:stage} environment
+    package:
+      patterns:
+        - '**/*.py'
+    compatibleRuntimes:
+      - python3.13
+    compatibleArchitectures:
+      - x86_64
+      - arm64
+    allowedAccounts:
+      - '*'
+    retain: false
 
 plugins:
   - serverless-python-requirements
