@@ -68,29 +68,39 @@ functions:
       - httpApi:
           path: /cart
           method: get
-      -  httpApi:
-          path: /cart/{id}
-          method: get
       - httpApi:
           path: /cart/{id}
-          method: post
-      - httpApi:
-          path: /cart/{id}
-          method: put
-      - httpApi:
-          path: /cart/{id}
-          method: delete
-  page:
+          method: any
+
+  view:
     handler: index.handler
-    module: lambda/page
+    module: lambda/view
+    snapStart: true
+    layers:
+      - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/page/*.py
+        - lambda/view/*.py
       exclude:
         - '**'
     events:
       - httpApi:
-          path: /page
+          path: /view
+          method: get
+  write:
+    handler: index.handler
+    module: lambda/write
+    snapStart: true
+    layers:
+      - !Ref DataLambdaLayer
+    package:
+      patterns:
+        - lambda/write/*.py
+      exclude:
+        - '**'
+    events:
+      - httpApi:
+          path: /write
           method: get
 
 resources:
@@ -110,7 +120,7 @@ resources:
               KeyType: RANGE
           BillingMode: PAY_PER_REQUEST
           TableName: Market_${sls:stage}
-  - ${file(cloudform.yml)}
+  # - ${file(cloudform.yml)}
   - Outputs:
       Domain:
         Value: "https://${sls:stage}.${self:custom.domain}"

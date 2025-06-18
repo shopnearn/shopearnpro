@@ -1,29 +1,45 @@
 import json
+
 import boto3
 from botocore.exceptions import ClientError
+
 
 def handler(event, context):
     # Initialize DynamoDB client
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Market_dev')  # Using the table name from your serverless.yml
+    table = dynamodb.Table('Market_dev')
 
     try:
-        # Attempt to scan the table
-        response = table.scan()
-        items = response['Items']
+        # Get URL parameters from the event
+        if 'queryStringParameters' not in event or not event['queryStringParameters']:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'error': 'No query parameters provided'
+                })
+            }
 
-        # Handle pagination if there are more items
-        while 'LastEvaluatedKey' in response:
-            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-            items.extend(response['Items'])
+        params = event['queryStringParameters']
 
-        # Return successful response with items
+        item = {
+            'pk': params.get('pk', 'none'),
+            'sk': params.get('sk', 'none'),
+            'type': params.get('type', 'user'),
+            'balance': float(params.get('balance', "0.0")),
+            'refCode': float(params.get('refCode', "0.0")),
+        }
+
+        table.put_item(Item=item)
+
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json'
             },
-            'body': json.dumps(items)
+            'body': json.dumps({
+                'message': 'Data successfully written to DynamoDB',
+                'item': item
+            })
         }
 
     except ClientError as e:
@@ -31,7 +47,6 @@ def handler(event, context):
         error_message = e.response['Error']['Message']
 
         if error_code == 'ResourceNotFoundException':
-            # Scenario 4: Table not found
             return {
                 'statusCode': 500,
                 'body': json.dumps({
@@ -39,7 +54,6 @@ def handler(event, context):
                 })
             }
         elif error_code in ['AccessDeniedException', 'UnauthorizedException']:
-            # Scenario 3: Lambda doesn't have permissions
             return {
                 'statusCode': 403,
                 'body': json.dumps({
@@ -47,7 +61,6 @@ def handler(event, context):
                 })
             }
         else:
-            # Handle other errors
             return {
                 'statusCode': 500,
                 'body': json.dumps({

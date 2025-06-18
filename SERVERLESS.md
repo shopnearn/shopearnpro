@@ -24,9 +24,14 @@ serverless print --aws-profile shopnearn-dev
 
 serverless info --aws-profile shopnearn-dev
 
+
 serverless requirements clean --aws-profile shopnearn-dev
 serverless requirements install --aws-profile shopnearn-dev
 serverless requirements cleanCache --aws-profile shopnearn-dev
+
+serverless deploy --aws-profile shopnearn-dev
+
+serverless deploy function --function page --aws-profile shopnearn-dev
 
 serverless remove --aws-profile shopnearn-dev
 
@@ -37,3 +42,4 @@ serverless deploy list functions --aws-profile shopnearn-dev
 serverless logs --function=hello --aws-profile shopnearn-dev --tail
 
 serverless invoke --function hello --aws-profile shopnearn-dev
+
