@@ -75,7 +75,7 @@ functions:
   view:
     handler: index.handler
     module: lambda/view
-    snapStart: true
+    snapStart: false
     layers:
       - !Ref DataLambdaLayer
     package:
@@ -90,7 +90,7 @@ functions:
   write:
     handler: index.handler
     module: lambda/write
-    snapStart: true
+    snapStart: false
     layers:
       - !Ref DataLambdaLayer
     package:
