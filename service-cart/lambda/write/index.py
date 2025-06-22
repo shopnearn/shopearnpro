@@ -25,8 +25,11 @@ def handler(event, context):
             'pk': params.get('pk', 'none'),
             'sk': params.get('sk', 'none'),
             'type': params.get('type', 'user'),
-            'balance': float(params.get('balance', "0.0")),
-            'refCode': float(params.get('refCode', "0.0")),
+            'balance': params.get('balance', "0.0"),
+            'refCode': params.get('refCode', "none"),
+            'price': params.get('price', "none"),
+            'name': params.get('name', "none"),
+            'rewardRate': params.get('rewardRate', "0%"),
         }
 
         table.put_item(Item=item)
