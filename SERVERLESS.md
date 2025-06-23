@@ -24,6 +24,8 @@ serverless print --aws-profile shopnearn-dev
 
 serverless info --aws-profile shopnearn-dev
 
+serverless package --aws-profile shopnearn-dev
+
 
 serverless requirements clean --aws-profile shopnearn-dev
 serverless requirements install --aws-profile shopnearn-dev

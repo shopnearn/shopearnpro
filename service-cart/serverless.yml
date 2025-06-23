@@ -5,6 +5,7 @@ service: service-cart
 custom:
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
+  power_tools_layer: ${file(./config.json):AWSLambdaPowerToolsLayerARM}
 
 stages:
   default:
@@ -17,7 +18,8 @@ stages:
 provider:
   name: aws
   runtime: python3.13
-  architecture: x86_64
+  architecture: arm64
+  memorySize: 512
   region: us-east-1
   iam:
     role:
@@ -44,10 +46,7 @@ provider:
 package:
   individually: true
   include:
-    - '!./**'
-    - './lambda/cart/*.py'
-    - './lambda/page/*.py'
-    - './layers/data/*.py'
+    - '!./**/*.py'
   exclude:
     - '**'
 
@@ -55,9 +54,10 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
+    memorySize: 128
     layers:
       - !Ref DataLambdaLayer
-      - 'arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-x86_64:11'
+      - ${self:custom.power_tools_layer}
     package:
       patterns:
         - lambda/cart/*.py
@@ -70,10 +70,10 @@ functions:
       - httpApi:
           path: /cart/{id}
           method: any
-
   view:
     handler: index.handler
     module: lambda/view
+    memorySize: 128
     layers:
       - !Ref DataLambdaLayer
     package:
@@ -88,6 +88,7 @@ functions:
   write:
     handler: index.handler
     module: lambda/write
+    memorySize: 128
     layers:
       - !Ref DataLambdaLayer
     package:
@@ -135,7 +136,6 @@ layers:
     compatibleRuntimes:
       - python3.13
     compatibleArchitectures:
-      - x86_64
       - arm64
     allowedAccounts:
       - '*'
