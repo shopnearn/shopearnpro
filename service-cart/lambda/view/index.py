@@ -1,6 +1,7 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
+import ulid
 
 def handler(event, context):
     # Initialize DynamoDB client
@@ -23,7 +24,7 @@ def handler(event, context):
             'headers': {
                 'Content-Type': 'application/json'
             },
-            'body': json.dumps(items)
+            'body': json.dumps(items) + "; ulid=" + str(ulid.ULID())
         }
 
     except ClientError as e:

@@ -1,19 +1,19 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: sapientum8
 service: service-cart
 
+plugins:
+  - serverless-python-requirements
+
 custom:
+  pythonRequirements:
+    pycache: false
+    exclude:
+      - '**/__pycache__/**'
+    noDeploy:
+      - bin
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(./config.json):AWSLambdaPowerToolsLayerARM}
-
-stages:
-  default:
-    params:
-      domain: ${sls:stage}.shopearnpro.com
-  prod:
-    params:
-      domain: shopearnpro.com
 
 provider:
   name: aws
@@ -45,8 +45,6 @@ provider:
 
 package:
   individually: true
-  include:
-    - '!./**/*.py'
   exclude:
     - '**'
 
@@ -60,9 +58,7 @@ functions:
       - ${self:custom.power_tools_layer}
     package:
       patterns:
-        - lambda/cart/*.py
-      exclude:
-        - '**'
+        - lambda/cart/*.*
     events:
       - httpApi:
           path: /cart
@@ -78,9 +74,7 @@ functions:
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/view/*.py
-      exclude:
-        - '**'
+        - lambda/view/*.*
     events:
       - httpApi:
           path: /view
@@ -93,13 +87,37 @@ functions:
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/write/*.py
-      exclude:
-        - '**'
+        - lambda/write/*.*
     events:
       - httpApi:
           path: /write
           method: get
+
+layers:
+  data: # DataLambdaLayer
+    path: layer-data
+    name: layerData-${sls:stage}
+    description: DataLambdaLayer for ${sls:stage} environment
+    package:
+      patterns:
+        - '**/*.py'
+        - '**/*.typed'
+        - '**/METADATA'
+    compatibleRuntimes:
+      - python3.13
+    compatibleArchitectures:
+      - arm64
+    allowedAccounts:
+      - '*'
+    retain: false
+
+stages:
+  default:
+    params:
+      domain: ${sls:stage}.shopearnpro.com
+  prod:
+    params:
+      domain: shopearnpro.com
 
 resources:
   - Resources:
@@ -122,24 +140,3 @@ resources:
   - Outputs:
       Domain:
         Value: "https://${sls:stage}.${self:custom.domain}"
-
-layers:
-  data: # DataLambdaLayer
-    path: layer-data
-    name: layerData-${sls:stage}
-    description: DataLambdaLayer for ${sls:stage} environment
-    package:
-      patterns:
-        - '**/*.py'
-      exclude:
-        - '**'
-    compatibleRuntimes:
-      - python3.13
-    compatibleArchitectures:
-      - arm64
-    allowedAccounts:
-      - '*'
-    retain: false
-
-plugins:
-  - serverless-python-requirements
