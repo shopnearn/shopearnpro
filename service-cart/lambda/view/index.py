@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import ulid
 
 def handler(event, context):
+    print("START_" + context.function_name)
     # Initialize DynamoDB client
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('Market_dev')  # Using the table name from your serverless.yml
@@ -17,6 +18,7 @@ def handler(event, context):
         while 'LastEvaluatedKey' in response:
             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
+
 
         # Return successful response with items
         return {
