@@ -1,7 +1,8 @@
 # Install Serverless Framework
 ### Install NPM packages
     npm install -g serverless
-
+### Install requirements plugin
+    serverless plugin install -n serverless-python-requirements
 
 # Useful NPM commands
 ### list packages
@@ -12,36 +13,41 @@
 ### List details of the AWS profile
     aws configure list
 
-# Common Serverless Framework commands
+# Useful Serverless Framework commands
 
-serverless invoke local --function service-cart/hello --aws-profile shopnearn-dev
-
-### deploy the serverless application 
-    serverless deploy --aws-profile shopnearn-dev
+### deploy the serverless application (run from project root directory)
     serverless deploy --aws-profile shopnearn-dev --service=service-cart
 
-serverless print --aws-profile shopnearn-dev
+## all the commands below are to be run from service-cart directory 
 
-serverless info --aws-profile shopnearn-dev
+### verify that the serverless configuration is valid and print it
+    serverless print --aws-profile shopnearn-dev
 
-serverless package --aws-profile shopnearn-dev
+### show the endpoints of the service
+    serverless info --aws-profile shopnearn-dev
 
+### package the serverless application ()
+    serverless package --aws-profile shopnearn-dev
 
-serverless requirements clean --aws-profile shopnearn-dev
-serverless requirements install --aws-profile shopnearn-dev
-serverless requirements cleanCache --aws-profile shopnearn-dev
+### deploy the serverless application
+    serverless deploy --aws-profile shopnearn-dev
 
-serverless deploy --aws-profile shopnearn-dev
+### check the list of deployed files
+    serverless deploy list --aws-profile shopnearn-dev
 
-serverless deploy function --function page --aws-profile shopnearn-dev
+### check the versions of deployed lambda functions
+    serverless deploy list functions --aws-profile shopnearn-dev
 
-serverless remove --aws-profile shopnearn-dev
+### check the logs of a running lambda function in real time
+    serverless logs --function=hello --aws-profile shopnearn-dev --tail
 
-serverless deploy list --aws-profile shopnearn-dev
+### invoke a specific lambda function from command line
+    serverless invoke --function myfunc --aws-profile shopnearn-dev
 
-serverless deploy list functions --aws-profile shopnearn-dev
+### delete the serverless application 
+    serverless remove --aws-profile shopnearn-dev
 
-serverless logs --function=hello --aws-profile shopnearn-dev --tail
-
-serverless invoke --function hello --aws-profile shopnearn-dev
-
+### commands related to the requirements plugin
+    serverless requirements clean --aws-profile shopnearn-dev
+    serverless requirements install --aws-profile shopnearn-dev
+    serverless requirements cleanCache --aws-profile shopnearn-dev
