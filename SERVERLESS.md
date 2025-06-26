@@ -46,8 +46,8 @@
     serverless remove --aws-profile shopnearn-dev
 
 ### Commands related to the requirements plugin
-    serverless requirements clean --aws-profile shopnearn-dev
     serverless requirements install --aws-profile shopnearn-dev
+    serverless requirements clean --aws-profile shopnearn-dev
     serverless requirements cleanCache --aws-profile shopnearn-dev
 
 ### Auxiliary commands

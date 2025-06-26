@@ -3,11 +3,16 @@ service: service-cart
 
 custom:
   pythonRequirements:
+    invalidateCaches: true
     pycache: false
-    exclude:
+    strip: true
+    slim: true
+    slimPatterns:
       - '**/__pycache__/**'
-    noDeploy:
-      - bin
+      - '**/licenses/**'
+      - '**/*.egg-info*'
+      - '**/*.exe'
+    slimPatternsAppendDefaults: false
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(./config.json):AWSLambdaPowerToolsLayerARM}
