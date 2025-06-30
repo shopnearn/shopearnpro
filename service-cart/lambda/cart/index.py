@@ -4,7 +4,7 @@ import logging
 import os
 import db
 import ulid
-from shared import (
+from cart import (
     get_cart_id,
     get_headers
 )
@@ -32,6 +32,7 @@ def handler(event, context):
     product_id = payload.get("id",0)
     quantity = payload.get("quantity", 1)
     cart_id, _ = get_cart_id(event["headers"])
+
 
     db.db_write(None, None)
 
