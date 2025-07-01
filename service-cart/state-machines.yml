@@ -1,0 +1,11 @@
+stateMachine1:
+  name: stateMachine1-${sls:stage}
+  definition:
+    Comment: "A state machine example"
+    StartAt: InitState
+    States:
+      InitState:
+        Type: Task
+        Resource:
+          Fn::GetAtt: [ calc, Arn ]
+        End: true
