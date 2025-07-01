@@ -2,13 +2,20 @@ import json
 import boto3
 import ulid
 import web
+from aws_lambda_powertools import Logger, Metrics, Tracer
+
+tracer, logger, metrics = Tracer(), Logger(), Metrics(namespace="shopnearn")
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Market_dev')
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context(log_event=True)
+# @metrics.log_metrics(capture_cold_start_metric=True)
 def handler(event, context):
     method, path, trace = web.init_request(event, context)
+    logger.info("logging message")
     match (method, path):
         case ("GET", "/view"):
             return view(trace)
