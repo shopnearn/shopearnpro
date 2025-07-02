@@ -1,21 +1,14 @@
+import logging as log
 import json
 import boto3
 import ulid
 import web
-from aws_lambda_powertools import Logger, Metrics, Tracer
-
-tracer, logger, metrics = Tracer(), Logger(), Metrics(namespace="shopnearn")
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Market_dev')
 
-
-@tracer.capture_lambda_handler
-@logger.inject_lambda_context(log_event=True)
-# @metrics.log_metrics(capture_cold_start_metric=True)
 def handler(event, context):
     method, path, trace = web.init_request(event, context)
-    logger.info("logging message")
     match (method, path):
         case ("GET", "/view"):
             return view(trace)
@@ -30,14 +23,12 @@ def handler(event, context):
 
 def view(trace):
     try:
-        # Attempt to scan the table
         response = table.scan()
         items = response['Items']
-        # Handle pagination if there are more items
         while 'LastEvaluatedKey' in response:
             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
-        # Return successful response with items
+        log.info(trace + "successful read")
         return web.success(str(ulid.ULID()), json.dumps(items), trace)
     except Exception as e:
         return web.fail(e)

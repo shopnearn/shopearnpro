@@ -115,9 +115,9 @@ package:
   exclude:
     - '**'
 
-#stepFunctions:
-#  stateMachines:
-#    ${file(./state-machines.yml)}
+stepFunctions:
+  stateMachines:
+    ${file(./state-machines.yml)}
 
 plugins:
   - serverless-python-requirements

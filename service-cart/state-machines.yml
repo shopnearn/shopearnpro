@@ -1,11 +1,18 @@
 stateMachine1:
   name: stateMachine1-${sls:stage}
   definition:
-    Comment: "A state machine example"
+    Comment: "A state machine template"
     StartAt: InitState
     States:
       InitState:
-        Type: Task
-        Resource:
-          Fn::GetAtt: [ calc, Arn ]
-        End: true
+        Comment: "Initial state"
+        Type: Pass
+        Next: WaitState
+      WaitState:
+        Comment: "Waiting state"
+        Type: Wait
+        Seconds: 1
+        Next: FinalState
+      FinalState:
+        Comment: "Success state"
+        Type: Succeed
