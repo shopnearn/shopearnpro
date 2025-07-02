@@ -1,11 +1,18 @@
 import json
+from aws_lambda_powertools.logging import correlation_paths
+from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
+
+API_GATEWAY_REST = correlation_paths.API_GATEWAY_REST
+
+
+class ApiHttpResolver(APIGatewayHttpResolver):
+    pass
 
 
 def init_request(event, context):
     path = event['requestContext']['http']['path']
     method = event['requestContext']['http']['method']
     trace = f"[{context.function_name}][{event['routeKey']}]"
-    print(f"INIT{trace}")
     return method, path, trace
 
 
@@ -18,7 +25,6 @@ def not_found(event, trace):
 
 
 def success(msg, data=None, trace=None):
-    print(f"SUCCESS{trace}")
     return {
         'statusCode': 200,
         'headers': {

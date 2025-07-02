@@ -1,40 +1,33 @@
-import logging as log
-import json
 import boto3
+import json
 import ulid
 import web
+import log
 
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('Market_dev')
-
-def handler(event, context):
-    method, path, trace = web.init_request(event, context)
-    match (method, path):
-        case ("GET", "/view"):
-            return view(trace)
-        case ("GET", "/write"):
-            return write(event, trace)
-        case ("GET", p) if p.startswith("/calc/"):
-            # user_id = p.split("/")[-1]
-            return web.success("calc called")
-        case _:
-            return web.not_found(event, trace)
+log = log.AppLogger(service="CALC")
+api = web.ApiHttpResolver()
+ddb = boto3.resource('dynamodb')
+table = ddb.Table('Market_dev')
 
 
-def view(trace):
+@api.get("/view")
+@api.post("/view")
+def view():
     try:
         response = table.scan()
         items = response['Items']
         while 'LastEvaluatedKey' in response:
             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
-        log.info(trace + "successful read")
-        return web.success(str(ulid.ULID()), json.dumps(items), trace)
+        log.info("successful read")
+        return web.success(str(ulid.ULID()), json.dumps(items))
     except Exception as e:
         return web.fail(e)
 
 
-def write(event, trace):
+@api.get("/write")
+def write():
+    event = api.current_event
     try:
         if 'queryStringParameters' not in event or not event['queryStringParameters']:
             return {
@@ -55,6 +48,17 @@ def write(event, trace):
             'rewardRate': params.get('rewardRate', "0%"),
         }
         table.put_item(Item=item)
-        return web.success('Data successfully written to DynamoDB', item, trace)
+        log.info("successful write")
+        return web.success('Data successfully written to DynamoDB', item)
     except Exception as e:
         return web.fail(e)
+
+
+@api.get("/calc")
+def calc(event, trace):
+    pass
+
+
+@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=True, clear_state=True)
+def handler(event, context):
+    return api.resolve(event, context)

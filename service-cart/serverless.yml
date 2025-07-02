@@ -18,6 +18,7 @@ custom:
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(./config.json):AWSLambdaPowerToolsLayerARM}
+  db_table: Market_${sls:stage}
 
 provider:
   name: aws
@@ -32,9 +33,8 @@ provider:
     metrics: true
     disableDefaultEndpoint: false
   environment:
-    DB_TABLE: Market_${sls:stage}
-    LOG_LEVEL: INFO
-    VAR1: ${file(./config.${sls:stage}.json):VAR1}
+    LOG_LEVEL: DEBUG
+    DB_TABLE: ${self:custom.db_table}
 
 functions:
   cart:
@@ -57,7 +57,15 @@ functions:
   calc:
     handler: index.handler
     module: lambda/calc
-    timeout: 10
+    iamRoleStatementsName: iam-calc-role
+    iamRoleStatements:
+        - Effect: "Allow"
+          Action:
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
+    timeout: 5
     url: true
     layers:
       - ${self:custom.power_tools_layer}
@@ -68,13 +76,13 @@ functions:
     events:
       - httpApi:
           path: /view
-          method: get
+          method: any
       - httpApi:
           path: /write
-          method: get
+          method: any
       - httpApi:
           path: /calc/{id}
-          method: get
+          method: any
 
 layers:
   data: # DataLambdaLayer
@@ -121,6 +129,7 @@ stepFunctions:
 
 plugins:
   - serverless-python-requirements
+  - serverless-iam-roles-per-function
   - serverless-step-functions
   - serverless-prune-plugin
 
