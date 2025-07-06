@@ -1,6 +1,13 @@
 service: service-cart
 
 custom:
+  #  customDomains:
+  #    - http:
+  #        stage: dev
+  #        domainName: dev-${opt:RANDOM_STRING, '101'}.shopearnpro.com
+  #        basePath: ''
+  #        apiType: http
+  #        endpointType: REGIONAL
   pythonRequirements:
     invalidateCaches: true
     pycache: false
@@ -17,7 +24,7 @@ custom:
     number: 3
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
-  power_tools_layer: ${file(./config.json):AWSLambdaPowerToolsLayerARM}
+  power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
   db_table: Market_${sls:stage}
 
 provider:
@@ -25,6 +32,7 @@ provider:
   region: us-east-1
   runtime: python3.13
   architecture: arm64
+  logRetentionInDays: 7
   memorySize: 128
   timeout: 8
   iam: ${file(iamroles.yml)}
@@ -34,7 +42,7 @@ provider:
     disableDefaultEndpoint: false
   environment:
     LOG_LEVEL: DEBUG
-    DB_TABLE: ${self:custom.db_table}
+    MARKET_TABLE: ${self:custom.db_table}
 
 functions:
   cart:
@@ -124,12 +132,14 @@ package:
     - '**'
 
 stepFunctions:
+  validate: true
   stateMachines:
-    ${file(./state-machines.yml)}
+    ${file(state-machines.yml)}
 
 plugins:
-  - serverless-python-requirements
   - serverless-iam-roles-per-function
+  - serverless-python-requirements
+  # - serverless-domain-manager
   - serverless-step-functions
   - serverless-prune-plugin
 

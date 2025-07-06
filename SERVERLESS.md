@@ -45,6 +45,11 @@
 ### Delete the serverless application 
     serverless remove --aws-profile shopnearn-dev
 
+### Create custom domain
+    serverless create_domain --aws-profile shopnearn-dev
+    serverless delete_domain --aws-profile shopnearn-dev
+    aws acm list-certificates --region us-east-1 --profile shopnearn-dev
+
 ### Commands related to the requirements plugin
     serverless requirements install --aws-profile shopnearn-dev
     serverless requirements clean --aws-profile shopnearn-dev

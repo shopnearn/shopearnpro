@@ -1,4 +1,12 @@
-def db_write(event, context):
+import boto3
+import os
+
+MARKET = os.environ["MARKET_TABLE"]
+# client = boto3.client('dynamodb')
+ddb = boto3.resource('dynamodb')
+market = ddb.Table(MARKET)
+
+def db_write():
     print("db_write executed")
 
 

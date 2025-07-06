@@ -1,5 +1,13 @@
 stateMachine1:
   name: stateMachine1-${sls:stage}
+  type: EXPRESS
+  #loggingConfig:
+  #  level: ALL
+  #  includeExecutionData: true
+  #  destinations:
+  #  - Fn::GetAtt: [ StateMachineLogGroup, Arn ]
+  tracingConfig:
+    enabled: false
   definition:
     Comment: "A state machine template"
     StartAt: InitState

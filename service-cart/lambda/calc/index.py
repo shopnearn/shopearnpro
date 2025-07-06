@@ -1,23 +1,20 @@
-import boto3
 import json
+import db
+import log
 import ulid
 import web
-import log
 
-log = log.AppLogger(service="CALC")
-api = web.ApiHttpResolver()
-ddb = boto3.resource('dynamodb')
-table = ddb.Table('Market_dev')
+log = log.AppLogger(service="calc")
+http = web.HttpApiResolver()
 
-
-@api.get("/view")
-@api.post("/view")
+@http.get("/view")
+@http.post("/view")
 def view():
     try:
-        response = table.scan()
+        response = db.market.scan()
         items = response['Items']
         while 'LastEvaluatedKey' in response:
-            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+            response = db.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
         log.info("successful read")
         return web.success(str(ulid.ULID()), json.dumps(items))
@@ -25,16 +22,16 @@ def view():
         return web.fail(e)
 
 
-@api.get("/write")
+@http.get("/write")
 def write():
-    event = api.current_event
+    event = http.current_event
     try:
         if 'queryStringParameters' not in event or not event['queryStringParameters']:
             return {
                 'statusCode': 400,
-                'body': json.dumps({
+                'body': {
                     'error': 'No query parameters provided'
-                })
+                }
             }
         params = event['queryStringParameters']
         item = {
@@ -47,18 +44,18 @@ def write():
             'name': params.get('name', "none"),
             'rewardRate': params.get('rewardRate', "0%"),
         }
-        table.put_item(Item=item)
+        db.market.put_item(Item=item)
         log.info("successful write")
         return web.success('Data successfully written to DynamoDB', item)
     except Exception as e:
         return web.fail(e)
 
 
-@api.get("/calc")
+@http.get("/calc")
 def calc(event, trace):
     pass
 
 
-@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=True, clear_state=True)
+@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=True)
 def handler(event, context):
-    return api.resolve(event, context)
+    return http.resolve(event, context)

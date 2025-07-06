@@ -4,10 +4,8 @@ from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
 
 API_GATEWAY_REST = correlation_paths.API_GATEWAY_REST
 
-
-class ApiHttpResolver(APIGatewayHttpResolver):
+class HttpApiResolver(APIGatewayHttpResolver):
     pass
-
 
 def init_request(event, context):
     path = event['requestContext']['http']['path']
