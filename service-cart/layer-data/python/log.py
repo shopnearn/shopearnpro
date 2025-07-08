@@ -14,7 +14,7 @@ class LambdaLogFormatter(LambdaPowertoolsFormatter):
         return self.json_serializer({
             "lv": log["level"],
             "ts": log["timestamp"],
-            "id": log["correlation_id"],
+            "gw": log["correlation_id"],
             "fn": f"{log['function_name']}[{log['function_memory_size']}]:{int(log['cold_start'])}",
             "msg": log["message"]
         })

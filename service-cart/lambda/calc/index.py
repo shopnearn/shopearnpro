@@ -2,7 +2,6 @@ import json
 
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler import Response, content_types
-from aws_lambda_powertools.event_handler.exceptions import NotFoundError
 
 import ddb
 import log
@@ -68,7 +67,7 @@ def calc(event, trace):
 
 @http.not_found()
 @tracer.capture_method(capture_response=False)
-def handle_not_found_errors(exc: NotFoundError) -> Response:
+def http_not_found() -> Response:
     log.debug("Route not found", route=http.current_event.path)
     return Response(status_code=404, content_type=content_types.TEXT_PLAIN, body="Not found")
 
