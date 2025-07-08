@@ -1,21 +1,31 @@
 import json
-import db
+
+from aws_lambda_powertools import Tracer
+from aws_lambda_powertools.event_handler import Response, content_types
+from aws_lambda_powertools.event_handler.exceptions import NotFoundError
+
+import ddb
 import log
 import ulid
 import web
 
-log = log.AppLogger(service="calc")
-http = web.HttpApiResolver()
+log = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
+http = web.ApiHttpResolver()
+tracer = Tracer()
 
-@http.get("/view")
-@http.post("/view")
+
+@http.get("/view",
+          summary="Get all items from DynamoDB",
+          description="Get all items from DynamoDB")
 def view():
     try:
-        response = db.market.scan()
+        response = ddb.market.scan()
         items = response['Items']
         while 'LastEvaluatedKey' in response:
-            response = db.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+            response = ddb.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
+        log.append_keys(app_key="my_value")
+        print(log.structure_logs)
         log.info("successful read")
         return web.success(str(ulid.ULID()), json.dumps(items))
     except Exception as e:
@@ -44,7 +54,7 @@ def write():
             'name': params.get('name', "none"),
             'rewardRate': params.get('rewardRate', "0%"),
         }
-        db.market.put_item(Item=item)
+        ddb.market.put_item(Item=item)
         log.info("successful write")
         return web.success('Data successfully written to DynamoDB', item)
     except Exception as e:
@@ -56,6 +66,13 @@ def calc(event, trace):
     pass
 
 
-@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=True)
+@http.not_found()
+@tracer.capture_method(capture_response=False)
+def handle_not_found_errors(exc: NotFoundError) -> Response:
+    log.debug("Route not found", route=http.current_event.path)
+    return Response(status_code=404, content_type=content_types.TEXT_PLAIN, body="Not found")
+
+
+@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=log.log_level in ["info", "debug"])
 def handler(event, context):
     return http.resolve(event, context)

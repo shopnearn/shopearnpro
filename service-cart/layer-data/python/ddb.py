@@ -1,4 +1,6 @@
 import boto3
+import model
+
 import os
 
 MARKET = os.environ["MARKET_TABLE"]
@@ -6,8 +8,31 @@ MARKET = os.environ["MARKET_TABLE"]
 ddb = boto3.resource('dynamodb')
 market = ddb.Table(MARKET)
 
+
 def db_write():
     print("db_write executed")
+
+
+def get_handler():
+    return DdbProductHandler()
+
+
+class DdbProductHandler(model.DbProductHandler):
+    def create_product(self, product):
+        #TODO: implement this method
+        pass
+
+    def get_product(self, product_id):
+        #TODO: implement this method
+        pass
+
+    def delete_product(self, product_id):
+        #TODO: implement this method
+        pass
+
+    def list_product(self):
+        #TODO: implement this method
+        pass
 
 
 def parse_value(value):
