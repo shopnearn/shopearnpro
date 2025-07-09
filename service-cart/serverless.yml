@@ -36,12 +36,16 @@ provider:
   memorySize: 128
   timeout: 8
   iam: ${file(iamroles.yml)}
+  logs:
+    httpApi: true
   httpApi:
     payload: '2.0'
     metrics: true
     disableDefaultEndpoint: false
   environment:
-    LOG_LEVEL: DEBUG
+    LOG_LEVEL: INFO
+    POWERTOOLS_SERVICE_NAME: service-cart
+    POWERTOOLS_METRICS_NAMESPACE: shopnearn
     MARKET_TABLE: ${self:custom.db_table}
 
 functions:

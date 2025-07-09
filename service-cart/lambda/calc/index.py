@@ -1,7 +1,8 @@
 import json
 
-from aws_lambda_powertools import Tracer
+from aws_lambda_powertools import Tracer, Metrics
 from aws_lambda_powertools.event_handler import Response, content_types
+from aws_lambda_powertools.metrics import MetricUnit
 
 import ddb
 import log
@@ -11,6 +12,7 @@ import web
 log = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
 http = web.ApiHttpResolver()
 tracer = Tracer()
+metrics = Metrics()
 
 
 @http.get("/view",
@@ -18,15 +20,17 @@ tracer = Tracer()
           description="Get all items from DynamoDB")
 def view():
     try:
+        uid = str(ulid.ULID())
         response = ddb.market.scan()
         items = response['Items']
         while 'LastEvaluatedKey' in response:
             response = ddb.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             items.extend(response['Items'])
         log.append_keys(app_key="my_value")
-        print(log.structure_logs)
         log.info("successful read")
-        return web.success(str(ulid.ULID()), json.dumps(items))
+        metrics.add_metric(name="view_metric", unit=MetricUnit.Count, value=1)
+        # metrics.add_metadata(key="uid", value=f"{uid}")
+        return web.success(uid, json.dumps(items))
     except Exception as e:
         return web.fail(e)
 
@@ -72,6 +76,7 @@ def http_not_found() -> Response:
     return Response(status_code=404, content_type=content_types.TEXT_PLAIN, body="Not found")
 
 
+@metrics.log_metrics(capture_cold_start_metric=True)
 @log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=log.log_level in ["info", "debug"])
 def handler(event, context):
     return http.resolve(event, context)

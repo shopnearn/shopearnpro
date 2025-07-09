@@ -1,11 +1,18 @@
 from abc import ABC, abstractmethod
 
+from pydantic.dataclasses import dataclass
 
+
+@dataclass
 class Product:
-    def __init__(self, product_id, name, price):
-        self.product_id = product_id
-        self.name = name
-        self.price = price
+    id: int
+    name: str
+    desc: str
+    price: float
+    sku: str
+    qty: int
+    cat: str | None = None
+    active: bool = True
 
 
 class DbProductHandler(ABC):
