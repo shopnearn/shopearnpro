@@ -9,16 +9,16 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 processor = BatchProcessor(event_type=EventType.SQS)
 tracer = Tracer()
-logger = Logger()
+log = Logger()
 
 
 @tracer.capture_method
 def record_handler(record: SQSRecord):
     payload: str = record.json_body
-    logger.info(payload)
+    log.info(payload)
 
 
-@logger.inject_lambda_context
+@log.inject_lambda_context
 @tracer.capture_lambda_handler
 def lambda_handler(event, context: LambdaContext):
     return process_partial_response(

@@ -35,7 +35,12 @@ provider:
   logRetentionInDays: 7
   memorySize: 128
   timeout: 8
-  iam: ${file(iamroles.yml)}
+  iam:
+    role:
+      statements: ${file(iamroles/default-role.yml)}
+  tracing:
+    lambda: true
+    apiGateway: true
   logs:
     httpApi: true
   httpApi:
@@ -46,6 +51,8 @@ provider:
     LOG_LEVEL: INFO
     POWERTOOLS_SERVICE_NAME: service-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
+    POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
+    POWERTOOLS_TRACER_CAPTURE_ERROR: true
     MARKET_TABLE: ${self:custom.db_table}
 
 functions:
@@ -58,25 +65,16 @@ functions:
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/cart/*.*
+        - 'lambda/cart/*.*'
     events:
       - httpApi:
-          path: /cart
-          method: get
-      - httpApi:
-          path: /cart/{id}
+          path: /cart/{proxy+}
           method: any
   calc:
     handler: index.handler
     module: lambda/calc
-    iamRoleStatementsName: iam-calc-role
-    iamRoleStatements:
-        - Effect: "Allow"
-          Action:
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
+    iamRoleStatementsName: lambda-calc-role
+    iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     timeout: 5
     url: true
     layers:
@@ -87,13 +85,7 @@ functions:
         - lambda/calc/*.*
     events:
       - httpApi:
-          path: /view
-          method: any
-      - httpApi:
-          path: /write
-          method: any
-      - httpApi:
-          path: /calc/{id}
+          path: /calc/{proxy+}
           method: any
 
 layers:
@@ -123,8 +115,8 @@ stages:
       domain: shopearnpro.com
 
 resources:
-  - Description: "shopnearn service application"
-  - ${file(dbtable.yml)}
+  - Description: shopearnpro application
+  - ${file(dbtables/market.yml)}
   - Outputs:
       Domain:
         Description: "shopnearn url link"
@@ -138,7 +130,7 @@ package:
 stepFunctions:
   validate: true
   stateMachines:
-    ${file(state-machines.yml)}
+    ${file(statemachines/state-machines.yml)}
 
 plugins:
   - serverless-iam-roles-per-function

@@ -1,11 +1,21 @@
-import boto3
-import model
+from boto3 import resource
+from botocore.config import Config
 
+import model
 import os
+
+config = Config(
+    retries = {
+        'max_attempts': 7,
+        'mode': 'standard'
+    },
+    read_timeout = 20,
+    connect_timeout = 10,
+)
 
 MARKET = os.environ["MARKET_TABLE"]
 # client = boto3.client('dynamodb')
-ddb = boto3.resource('dynamodb')
+ddb = resource('dynamodb', config=config)
 market = ddb.Table(MARKET)
 
 

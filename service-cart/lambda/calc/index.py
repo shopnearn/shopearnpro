@@ -11,13 +11,14 @@ import web
 
 log = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
 http = web.ApiHttpResolver()
-tracer = Tracer()
+tracer = Tracer(service="calc")
 metrics = Metrics()
 
 
-@http.get("/view",
+@http.get("/calc/view",
           summary="Get all items from DynamoDB",
           description="Get all items from DynamoDB")
+@tracer.capture_method(capture_response=False)
 def view():
     try:
         uid = str(ulid.ULID())
@@ -35,7 +36,7 @@ def view():
         return web.fail(e)
 
 
-@http.get("/write")
+@http.get("/calc/write")
 def write():
     event = http.current_event
     try:
@@ -64,18 +65,18 @@ def write():
         return web.fail(e)
 
 
-@http.get("/calc")
+@http.get("/calc/compute")
 def calc(event, trace):
     pass
 
 
 @http.not_found()
-@tracer.capture_method(capture_response=False)
 def http_not_found() -> Response:
     log.debug("Route not found", route=http.current_event.path)
     return Response(status_code=404, content_type=content_types.TEXT_PLAIN, body="Not found")
 
 
+@tracer.capture_lambda_handler
 @metrics.log_metrics(capture_cold_start_metric=True)
 @log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=log.log_level in ["info", "debug"])
 def handler(event, context):

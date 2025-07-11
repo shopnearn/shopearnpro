@@ -10,11 +10,14 @@ stateMachine1:
     enabled: false
   definition:
     Comment: "A state machine template"
+    QueryLanguage: JSONata
     StartAt: InitState
     States:
       InitState:
         Comment: "Initial state"
         Type: Pass
+        Assign:
+          a: 123
         Next: WaitState
       WaitState:
         Comment: "Waiting state"
