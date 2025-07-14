@@ -12,7 +12,8 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^10.0.1",
     "gray-matter": "^4.0.3",
-    "markdown-magic": "^0.1.25"
+    "markdown-magic": "^0.1.25",
+    "serverless-plugin-scripts": "^1.0.2"
   },
   "devDependencies": {
     "eslint-plugin-import": "^2.32.0",

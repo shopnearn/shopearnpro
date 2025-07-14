@@ -1,11 +1,11 @@
 stateMachine1:
   name: stateMachine1-${sls:stage}
   type: EXPRESS
-  #loggingConfig:
-  #  level: ALL
-  #  includeExecutionData: true
-  #  destinations:
-  #  - Fn::GetAtt: [ StateMachineLogGroup, Arn ]
+  loggingConfig:
+    level: ALL
+    includeExecutionData: true
+    destinations:
+      - Fn::GetAtt: [StateMachineLogGroup, Arn]
   tracingConfig:
     enabled: false
   definition:
@@ -18,6 +18,7 @@ stateMachine1:
         Type: Pass
         Assign:
           a: 123
+        Output: "{% $states.input[calories=0] %}"
         Next: WaitState
       WaitState:
         Comment: "Waiting state"
@@ -27,3 +28,5 @@ stateMachine1:
       FinalState:
         Comment: "Success state"
         Type: Succeed
+        Output:
+          result: "{% $a + $count($states.input) %}"

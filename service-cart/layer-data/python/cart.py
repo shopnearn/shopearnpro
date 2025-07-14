@@ -5,6 +5,7 @@ import uuid
 from decimal import Decimal
 from http.cookies import SimpleCookie
 
+import cognitojwt
 from aws_lambda_powertools import Tracer
 
 tracer = Tracer()
@@ -39,7 +40,7 @@ def generate_ttl(days=1):
     """
     Generate epoch timestamp for number days in future
     """
-    future = datetime.datetime.utcnow() + datetime.timedelta(days=days)
+    future = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=days)
     return calendar.timegm(future.utctimetuple())
 
 
@@ -49,14 +50,14 @@ def get_user_sub(jwt_token):
     Validate JWT claims & retrieve user identifier
     """
 
-    #try:
-    #    verified_claims = cognitojwt.decode(
-    #        jwt_token, os.environ["AWS_REGION"], os.environ["USERPOOL_ID"]
-    #    )
-    #except (cognitojwt.CognitoJWTException, ValueError):
-    #    verified_claims = {}
-#
-#    return verified_claims.get("sub")
+    try:
+        verified_claims = cognitojwt.decode(
+            jwt_token, os.environ["AWS_REGION"], os.environ["USERPOOL_ID"]
+        )
+    except (cognitojwt.CognitoJWTException, ValueError):
+        verified_claims = {}
+
+    return verified_claims.get("sub")
 
 
 @tracer.capture_method

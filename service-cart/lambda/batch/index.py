@@ -27,3 +27,4 @@ def lambda_handler(event, context: LambdaContext):
         processor=processor,
         context=context,
     )
+

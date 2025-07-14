@@ -22,6 +22,11 @@ custom:
   prune:
     automatic: true
     number: 3
+  scripts:
+    hooks:
+      after:deploy:deploy: echo _Success
+  userPoolClientId:
+    Ref: AppCognitoUserPoolClient
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
@@ -32,7 +37,7 @@ provider:
   region: us-east-1
   runtime: python3.13
   architecture: arm64
-  logRetentionInDays: 7
+  logRetentionInDays: 14
   memorySize: 128
   timeout: 8
   iam:
@@ -47,6 +52,19 @@ provider:
     payload: '2.0'
     metrics: true
     disableDefaultEndpoint: false
+    authorizers:
+      cognitoJwtAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl:
+          Fn::Join:
+            - ""
+            - - "https://cognito-idp."
+              - ${self:provider.region}
+              - ".amazonaws.com/"
+              - Ref: AppUserPool
+        audience:
+          - ${self:custom.userPoolClientId}
+        type: jwt
   environment:
     LOG_LEVEL: INFO
     POWERTOOLS_SERVICE_NAME: service-cart
@@ -65,24 +83,27 @@ functions:
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - 'lambda/cart/*.*'
+        - 'lambda/cart/*'
     events:
       - httpApi:
           path: /cart/{proxy+}
           method: any
+          authorizer:
+            name: cognitoJwtAuthorizer
   calc:
     handler: index.handler
     module: lambda/calc
     iamRoleStatementsName: lambda-calc-role
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
+    ephemeralStorageSize: 512
     timeout: 5
-    url: true
+    url: false
     layers:
       - ${self:custom.power_tools_layer}
       - !Ref DataLambdaLayer
     package:
       patterns:
-        - lambda/calc/*.*
+        - 'lambda/calc/*'
     events:
       - httpApi:
           path: /calc/{proxy+}
@@ -116,7 +137,9 @@ stages:
 
 resources:
   - Description: shopearnpro application
-  - ${file(dbtables/market.yml)}
+  - Resources: ${file(statemachines/log-group.yml)}
+  - Resources: ${file(cognito/userpool.yml)}
+  - Resources: ${file(dbtables/market.yml)}
   - Outputs:
       Domain:
         Description: "shopnearn url link"
@@ -124,8 +147,8 @@ resources:
 
 package:
   individually: true
-  exclude:
-    - '**'
+  patterns:
+    - '!**'
 
 stepFunctions:
   validate: true
@@ -137,6 +160,7 @@ plugins:
   - serverless-python-requirements
   # - serverless-domain-manager
   - serverless-step-functions
+  - serverless-plugin-scripts
   - serverless-prune-plugin
 
 app: shopnearn-${sls:stage}

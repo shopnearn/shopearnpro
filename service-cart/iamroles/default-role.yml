@@ -1,21 +1,11 @@
-- Effect: Allow
+- Effect: "Allow"
   Action:
     - xray:PutTraceSegments
     - xray:PutTelemetryRecords
-    - xray:GetSamplingRules
-    - xray:GetSamplingTargets
-  Resource: "*"
-- Effect: Allow
+  Resource: '*'
+- Effect: "Allow"
   Action:
     - dynamodb:Scan
     - dynamodb:Query
     - dynamodb:GetItem
-    - dynamodb:PutItem
-    - dynamodb:UpdateItem
-    - dynamodb:DeleteItem
-  Resource:
-    - Fn::GetAtt: [ MarketTable, Arn ]
-- Effect: Allow
-  Action:
-    - s3:*
-  Resource: ${self:custom.s3_role_resource}
+  Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"

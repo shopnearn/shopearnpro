@@ -1,19 +1,19 @@
+
 from abc import ABC, abstractmethod
 
 from pydantic.dataclasses import dataclass
 
+from pydantic import BaseModel
 
-@dataclass
-class Product:
-    id: int
-    name: str
-    desc: str
-    price: float
-    sku: str
-    qty: int
+class Product(BaseModel):
+    id: str
+    name: str | None = "default"
+    desc: str | None = None
+    sku: str | None = None
     cat: str | None = None
+    price: float | None = 0.0
+    qty: int | None = 0
     active: bool = True
-
 
 class DbProductHandler(ABC):
     @abstractmethod

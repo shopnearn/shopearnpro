@@ -4,6 +4,10 @@ from aws_lambda_powertools import Tracer, Metrics
 from aws_lambda_powertools.event_handler import Response, content_types
 from aws_lambda_powertools.metrics import MetricUnit
 
+from aws_lambda_powertools.utilities.parser import parse
+
+import model
+
 import ddb
 import log
 import ulid
@@ -18,7 +22,7 @@ metrics = Metrics()
 @http.get("/calc/view",
           summary="Get all items from DynamoDB",
           description="Get all items from DynamoDB")
-@tracer.capture_method(capture_response=False)
+@tracer.capture_method(capture_response=True)
 def view():
     try:
         uid = str(ulid.ULID())
@@ -38,6 +42,7 @@ def view():
 
 @http.get("/calc/write")
 def write():
+    parse(json.loads(http.current_event.body), model=model.Product)
     event = http.current_event
     try:
         if 'queryStringParameters' not in event or not event['queryStringParameters']:

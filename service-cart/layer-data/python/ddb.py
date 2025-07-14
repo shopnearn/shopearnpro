@@ -13,6 +13,12 @@ config = Config(
     connect_timeout = 10,
 )
 
+# A#01K008XTWH5XQJVXMY8G9XRGH6
+# A#00000000000000000000000000
+# A#ZZZZZZZZZZZZZZZZZZZZZZZZZZ
+
+
+
 MARKET = os.environ["MARKET_TABLE"]
 # client = boto3.client('dynamodb')
 ddb = resource('dynamodb', config=config)
