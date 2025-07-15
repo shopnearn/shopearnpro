@@ -90,7 +90,7 @@ functions:
     memorySize: 256
     layers:
       - ${self:custom.power_tools_layer}
-      - !Ref DataLambdaLayer
+      - !Ref AppLambdaLayer
     package:
       patterns:
         - 'lambda/cart/*'
@@ -110,7 +110,7 @@ functions:
     url: false
     layers:
       - ${self:custom.power_tools_layer}
-      - !Ref DataLambdaLayer
+      - !Ref AppLambdaLayer
     package:
       patterns:
         - 'lambda/calc/*'
@@ -120,10 +120,10 @@ functions:
           method: any
 
 layers:
-  data: # DataLambdaLayer
-    path: layer-data
-    name: layerData-${sls:stage}
-    description: Base lambda layer for ${sls:stage} environment
+  app: # AppLambdaLayer
+    path: app-layer
+    name: app-layer-${sls:stage}
+    description: Service lambda layer for ${sls:stage}
     package:
       patterns:
         - '**/*.py'
