@@ -15,8 +15,17 @@
   Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
   Condition:
     "ForAllValues:StringEquals":
-      "dynamodb:LeadingKeys": ["U#${cognito-identity.amazonaws.com:sub}", "U#${cognito-identity.amazonaws.com:sub}#O", "U#${cognito-identity.amazonaws.com:sub}#P"]
+      "dynamodb:LeadingKeys": ["U#${cognito-identity.amazonaws.com:sub}", "${www.amazon.com:user_id}", "${graph.facebook.com:id}", "${accounts.google.com:sub}"]
+- Effect: "Allow"
+  Action:
+    - dynamodb:PutItem
+  Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
+  Condition:
+    "ForAllValues:StringEquals": # join to prevent sls variable resolution
+      "dynamodb:LeadingKeys": [ Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}']], Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}#O']]]
 - Effect: Allow
   Action:
     - s3:*
   Resource: ${self:custom.s3_role_resource}
+
+

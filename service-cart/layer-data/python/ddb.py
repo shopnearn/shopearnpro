@@ -24,7 +24,6 @@ MARKET = os.environ["MARKET_TABLE"]
 ddb = resource('dynamodb', config=config)
 market = ddb.Table(MARKET)
 
-
 def db_write():
     print("db_write executed")
 

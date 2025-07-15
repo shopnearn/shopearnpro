@@ -1,10 +1,10 @@
-service: service-cart
+service: shopearn-cart
 
 custom:
   #  customDomains:
   #    - http:
   #        stage: dev
-  #        domainName: dev-${opt:RANDOM_STRING, '101'}.shopearnpro.com
+  #        domainName: dev-${opt:RANDOM_STRING, ''}.shopearnpro.com
   #        basePath: ''
   #        apiType: http
   #        endpointType: REGIONAL
@@ -24,13 +24,14 @@ custom:
     number: 3
   scripts:
     hooks:
-      after:deploy:deploy: echo _Success
+      after:deploy:finalize: serverless invoke --function dbinit --aws-profile shopnearn-${sls:stage}
   userPoolClientId:
-    Ref: AppCognitoUserPoolClient
+    Ref: CognitoUserPoolClient
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
   db_table: Market_${sls:stage}
+  sign: '$'
 
 provider:
   name: aws
@@ -53,7 +54,7 @@ provider:
     metrics: true
     disableDefaultEndpoint: false
     authorizers:
-      cognitoJwtAuthorizer:
+      cognitoAuthorizer:
         identitySource: $request.header.Authorization
         issuerUrl:
           Fn::Join:
@@ -61,7 +62,7 @@ provider:
             - - "https://cognito-idp."
               - ${self:provider.region}
               - ".amazonaws.com/"
-              - Ref: AppUserPool
+              - Ref: CognitoUserPool
         audience:
           - ${self:custom.userPoolClientId}
         type: jwt
@@ -89,7 +90,7 @@ functions:
           path: /cart/{proxy+}
           method: any
           authorizer:
-            name: cognitoJwtAuthorizer
+            name: cognitoAuthorizer
   calc:
     handler: index.handler
     module: lambda/calc
@@ -108,6 +109,18 @@ functions:
       - httpApi:
           path: /calc/{proxy+}
           method: any
+  dbinit:
+    handler: dbinit.handler
+    module: lambda/scripts
+    iamRoleStatementsName: lambda-dbinit-role
+    iamRoleStatements: ${file(iamroles/lambda-dbinit-role.yml)}
+    timeout: 900
+    layers:
+      - ${self:custom.power_tools_layer}
+      - !Ref DataLambdaLayer
+    package:
+      patterns:
+        - 'lambda/scripts/dbinit.*'
 
 layers:
   data: # DataLambdaLayer
@@ -163,5 +176,5 @@ plugins:
   - serverless-plugin-scripts
   - serverless-prune-plugin
 
-app: shopnearn-${sls:stage}
+app: app-${self:service}-${sls:stage}
 org: sapientum8

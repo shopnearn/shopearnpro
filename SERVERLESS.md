@@ -40,7 +40,7 @@
     serverless metrics --aws-profile shopnearn-dev --function=view
 
 ### Invoke a specific lambda function from command line
-    serverless invoke --function view --aws-profile shopnearn-dev
+    serverless invoke --function dbinit --aws-profile shopnearn-dev
 
 ### Delete the serverless application 
     serverless remove --aws-profile shopnearn-dev
