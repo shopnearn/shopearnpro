@@ -22,16 +22,16 @@ def not_found(event, trace):
     }
 
 
-def success(msg, data=None, trace=None):
+def success(msg, data=None):
     return {
         'statusCode': 200,
         'headers': {
             'Content-Type': 'application/json'
         },
-        'body': json.dumps({
+        'body': {
             'message': msg,
             'item': data
-        })
+        }
     }
 
 

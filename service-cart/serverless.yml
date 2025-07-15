@@ -24,7 +24,7 @@ custom:
     number: 3
   scripts:
     hooks:
-      after:deploy:finalize: serverless invoke --function dbinit --aws-profile shopnearn-${sls:stage}
+      after:deploy:finalize: serverless invoke --function init --aws-profile shopnearn-${sls:stage}
   userPoolClientId:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
@@ -66,6 +66,7 @@ provider:
           - ${self:custom.userPoolClientId}
         type: jwt
   environment:
+    STAGE: ${opt:stage, 'dev'}
     LOG_LEVEL: INFO
     POWERTOOLS_SERVICE_NAME: service-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
@@ -74,6 +75,15 @@ provider:
     MARKET_TABLE: ${self:custom.db_table}
 
 functions:
+  init:
+    handler: init.handler
+    module: lambda/scripts
+    iamRoleStatementsName: lambda-init-role
+    iamRoleStatements: ${file(iamroles/lambda-init-role.yml)}
+    timeout: 900
+    package:
+      patterns:
+        - 'lambda/scripts/init.*'
   cart:
     handler: index.handler
     module: lambda/cart
@@ -108,18 +118,6 @@ functions:
       - httpApi:
           path: /calc/{proxy+}
           method: any
-  dbinit:
-    handler: dbinit.handler
-    module: lambda/scripts
-    iamRoleStatementsName: lambda-dbinit-role
-    iamRoleStatements: ${file(iamroles/lambda-dbinit-role.yml)}
-    timeout: 900
-    layers:
-      - ${self:custom.power_tools_layer}
-      - !Ref DataLambdaLayer
-    package:
-      patterns:
-        - 'lambda/scripts/dbinit.*'
 
 layers:
   data: # DataLambdaLayer

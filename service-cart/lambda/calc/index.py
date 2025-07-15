@@ -24,50 +24,16 @@ metrics = Metrics()
           description="Get all items from DynamoDB")
 @tracer.capture_method(capture_response=True)
 def view():
-    try:
-        uid = str(ulid.ULID())
-        response = ddb.market.scan()
-        items = response['Items']
-        while 'LastEvaluatedKey' in response:
-            response = ddb.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-            items.extend(response['Items'])
-        log.append_keys(app_key="my_value")
-        log.info("successful read")
-        metrics.add_metric(name="view_metric", unit=MetricUnit.Count, value=1)
-        # metrics.add_metadata(key="uid", value=f"{uid}")
-        return web.success(uid, json.dumps(items))
-    except Exception as e:
-        return web.fail(e)
-
-
-@http.get("/calc/write")
-def write():
-    parse(json.loads(http.current_event.body), model=model.Product)
-    event = http.current_event
-    try:
-        if 'queryStringParameters' not in event or not event['queryStringParameters']:
-            return {
-                'statusCode': 400,
-                'body': {
-                    'error': 'No query parameters provided'
-                }
-            }
-        params = event['queryStringParameters']
-        item = {
-            'pk': params.get('pk', 'none'),
-            'sk': params.get('sk', 'none'),
-            'type': params.get('type', 'user'),
-            'balance': params.get('balance', "0.0"),
-            'refCode': params.get('refCode', "none"),
-            'price': params.get('price', "none"),
-            'name': params.get('name', "none"),
-            'rewardRate': params.get('rewardRate', "0%"),
-        }
-        ddb.market.put_item(Item=item)
-        log.info("successful write")
-        return web.success('Data successfully written to DynamoDB', item)
-    except Exception as e:
-        return web.fail(e)
+    uid = str(ulid.ULID())
+    response = ddb.market.scan()
+    items = response['Items']
+    while 'LastEvaluatedKey' in response:
+        response = ddb.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        items.extend(response['Items'])
+    log.info("successful read")
+    metrics.add_metric(name="view_metric", unit=MetricUnit.Count, value=1)
+    # metrics.add_metadata(key="uid", value=f"{uid}")
+    return items
 
 
 @http.get("/calc/compute")
