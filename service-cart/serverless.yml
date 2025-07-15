@@ -31,7 +31,6 @@ custom:
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
   db_table: Market_${sls:stage}
-  sign: '$'
 
 provider:
   name: aws
