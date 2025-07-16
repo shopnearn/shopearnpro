@@ -1,14 +1,13 @@
 import json
+
 import boto3
-import logging
-import os
-import db
+from aws_lambda_powertools import Logger, Metrics, Tracer
+
 import ulid
 from cart import (
     get_cart_id,
     get_headers
 )
-from aws_lambda_powertools import Logger, Metrics, Tracer
 
 logger, tracer, metrics = Logger(), Tracer(), Metrics()
 
@@ -32,9 +31,6 @@ def handler(event, context):
     product_id = payload.get("id",0)
     quantity = payload.get("quantity", 1)
     cart_id, _ = get_cart_id(event["headers"])
-
-
-    db.db_write(None, None)
 
     body = {
         "message": "Go Serverless v4.0! Your function executed successfully! Boto3 version: " + v + "; id=" + str(
