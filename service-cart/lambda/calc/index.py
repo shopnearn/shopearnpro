@@ -1,10 +1,7 @@
-import json
-
-from aws_lambda_powertools import Tracer, Metrics
-from aws_lambda_powertools.event_handler import Response, content_types
 from aws_lambda_powertools.metrics import MetricUnit
-
 from aws_lambda_powertools.utilities.parser import parse
+from aws_lambda_powertools.utilities.parser.envelopes import ApiGatewayV2Envelope
+from pydantic import ValidationError
 
 import model
 
@@ -13,10 +10,10 @@ import log
 import ulid
 import web
 
-log = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
 http = web.ApiHttpResolver()
-tracer = Tracer(service="calc")
-metrics = Metrics()
+metrics = log.AppMetrics()
+tracer = log.AppTracer(service="calc")
+logger = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
 
 
 @http.get("/calc/view",
@@ -30,25 +27,31 @@ def view():
     while 'LastEvaluatedKey' in response:
         response = ddb.market.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
         items.extend(response['Items'])
-    log.info("successful read")
+    logger.info("successful read")
     metrics.add_metric(name="view_metric", unit=MetricUnit.Count, value=1)
     # metrics.add_metadata(key="uid", value=f"{uid}")
     return items
 
 
-@http.get("/calc/compute")
-def calc(event, trace):
+@http.get("/calc/compute",
+          summary="Calculate bonus",
+          description="Calculate bonus for a transaction")
+def calc():
     pass
 
-
-@http.not_found()
-def http_not_found() -> Response:
-    log.debug("Route not found", route=http.current_event.path)
-    return Response(status_code=404, content_type=content_types.TEXT_PLAIN, body="Not found")
+@http.get("/save/product",
+          summary="Save product to DynamoDB",
+          description="Save product to DynamoDB")
+def save_product():
+    try:
+        product: model.Product = parse(http.current_event.raw_event, model=model.Product, envelope=ApiGatewayV2Envelope)
+        logger.info(f"Saving product: {product}")
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
 
 
 @tracer.capture_lambda_handler
 @metrics.log_metrics(capture_cold_start_metric=True)
-@log.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=log.log_level in ["info", "debug"])
+@logger.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=logger.log_level in ["info", "debug"])
 def handler(event, context):
     return http.resolve(event, context)

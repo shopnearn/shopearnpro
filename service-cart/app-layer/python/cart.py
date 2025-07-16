@@ -4,7 +4,6 @@ import os
 import uuid
 from decimal import Decimal
 from http.cookies import SimpleCookie
-
 import cognitojwt
 from aws_lambda_powertools import Tracer
 
@@ -49,14 +48,12 @@ def get_user_sub(jwt_token):
     """
     Validate JWT claims & retrieve user identifier
     """
-
     try:
         verified_claims = cognitojwt.decode(
             jwt_token, os.environ["AWS_REGION"], os.environ["USERPOOL_ID"]
         )
     except (cognitojwt.CognitoJWTException, ValueError):
         verified_claims = {}
-
     return verified_claims.get("sub")
 
 
@@ -73,7 +70,6 @@ def get_cart_id(event_headers):
     except KeyError:
         cart_cookie = str(uuid.uuid4())
         generated = True
-
     return cart_cookie, generated
 
 

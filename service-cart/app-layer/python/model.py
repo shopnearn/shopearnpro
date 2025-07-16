@@ -1,33 +1,30 @@
+from typing import Annotated
+from pydantic import BaseModel, StringConstraints
 
-from abc import ABC, abstractmethod
+TypedUlidId = Annotated[str, StringConstraints(min_length=28, max_length=64)]
 
-from pydantic.dataclasses import dataclass
-
-from pydantic import BaseModel
 
 class Product(BaseModel):
-    id: str
-    name: str | None = "default"
+    id: TypedUlidId
+    name: str = "default"
     desc: str | None = None
     sku: str | None = None
     cat: str | None = None
-    price: float | None = 0.0
-    qty: int | None = 0
+    price: float = 0.0
+    qty: int = 0
     active: bool = True
 
-class DbProductHandler(ABC):
-    @abstractmethod
-    def create_product(self, product):
-        pass
 
-    @abstractmethod
-    def get_product(self, product_id):
-        pass
+class Name(BaseModel):
+    first: str
+    last: str
+    middle: str | None = None
 
-    @abstractmethod
-    def delete_product(self, product_id):
-        pass
+    def full(self, reverse: bool = False):
+        return f"{self.last}, {self.first} " if reverse else f"{self.first} {self.last}"
 
-    @abstractmethod
-    def list_product(self):
-        pass
+class Phone(BaseModel):
+    home: str | None = None
+    cell: str | None = None
+    work: str | None = None
+    other: str | None = None

@@ -1,4 +1,4 @@
-from aws_lambda_powertools import Logger
+from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.logging.formatter import LambdaPowertoolsFormatter
 from aws_lambda_powertools.logging.types import LogRecord
 
@@ -6,6 +6,11 @@ from aws_lambda_powertools.logging.types import LogRecord
 class AppLogger(Logger):
     pass
 
+class AppTracer(Tracer):
+    pass
+
+class AppMetrics(Metrics):
+    pass
 
 class LambdaLogFormatter(LambdaPowertoolsFormatter):
     def serialize(self, log: LogRecord) -> str:
