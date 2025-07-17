@@ -123,9 +123,9 @@ functions:
           path: /calc/{proxy+}
           method: any
   stream:
-    handler: processor.handler
+    handler: market.processor
     module: lambda/stream
-    description: market table ddb stream processor
+    description: Market table stream processor
     iamRoleStatementsName: lambda-ddb-stream-role
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
     layers:
@@ -133,7 +133,7 @@ functions:
       - !Ref AppLambdaLayer
     package:
       patterns:
-        - 'lambda/stream/*'
+        - 'lambda/stream/market.*'
     events:
       - stream:
           type: dynamodb

@@ -4,7 +4,7 @@ from log import AppLogger
 log = AppLogger(service="stream")
 
 
-def handler(event, context):
+def processor(event, context):
     for record in event['Records']:
         event_name = record['eventName']  # INSERT, MODIFY, REMOVE
         dynamodb_record = record['dynamodb']
