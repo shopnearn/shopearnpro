@@ -1,0 +1,17 @@
+- Effect: "Allow"
+  Action:
+    - xray:PutTraceSegments
+    - xray:PutTelemetryRecords
+  Resource: '*'
+- Effect: "Allow"
+  Action:
+    - dynamodb:Scan
+    - dynamodb:GetItem
+  Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
+- Effect: "Allow"
+  Action:
+    - dynamodb:PutItem
+  Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
+  Condition: # limit the table exposure to the keys owned by cognito user
+    "ForAllValues:StringEquals": # join to prevent recursive sls variable resolution
+      "dynamodb:LeadingKeys": [ Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}']], Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}#O']]]

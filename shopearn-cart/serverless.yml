@@ -91,7 +91,10 @@ functions:
     handler: index.handler
     module: lambda/cart
     description: Shopping cart service
+    iamRoleStatementsName: lambda-cart-role
+    iamRoleStatements: ${file(iamroles/lambda-cart-role.yml)}
     memorySize: 256
+    tracing: true
     layers:
       - ${self:custom.power_tools_layer}
       - !Ref AppLambdaLayer
@@ -111,6 +114,7 @@ functions:
     iamRoleStatementsName: lambda-calc-role
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
+    tracing: true
     timeout: 5
     url: false
     layers:
@@ -129,6 +133,7 @@ functions:
     description: Market table stream processor
     iamRoleStatementsName: lambda-ddb-stream-role
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
+    tracing: true
     layers:
       - ${self:custom.power_tools_layer}
       - !Ref AppLambdaLayer

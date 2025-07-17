@@ -5,6 +5,11 @@
   Resource: '*'
 - Effect: "Allow"
   Action:
+    - xray:PutTraceSegments
+    - xray:PutTelemetryRecords
+  Resource: '*'
+- Effect: "Allow"
+  Action:
     - dynamodb:DescribeStream
     - dynamodb:GetRecords
     - dynamodb:GetShardIterator
