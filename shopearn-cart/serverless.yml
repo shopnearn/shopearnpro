@@ -3,8 +3,8 @@ service: shopearn-cart
 custom:
   #  customDomains:
   #    - http:
-  #        stage: dev
-  #        domainName: dev-${opt:RANDOM_STRING, ''}.shopearnpro.com
+  #        stage: ${sls:stage}
+  #        domainName: ${sls:stage}-${sls:instanceId}.shopearnpro.com
   #        basePath: ''
   #        apiType: http
   #        endpointType: REGIONAL
@@ -122,6 +122,23 @@ functions:
       - httpApi:
           path: /calc/{proxy+}
           method: any
+  stream:
+    handler: processor.handler
+    module: lambda/stream
+    description: market table ddb stream processor
+    iamRoleStatementsName: lambda-ddb-stream-role
+    iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
+    layers:
+      - ${self:custom.power_tools_layer}
+      - !Ref AppLambdaLayer
+    package:
+      patterns:
+        - 'lambda/stream/*'
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [ MarketTable, StreamArn ]
 
 layers:
   app: # AppLambdaLayer
@@ -141,33 +158,33 @@ layers:
       - '*'
     retain: false
 
-stages:
-  default:
-    params:
-      domain: ${sls:stage}.shopearnpro.com
-  prod:
-    params:
-      domain: shopearnpro.com
+stepFunctions:
+  validate: true
+  stateMachines:
+    ${file(statemachines/state-machines.yml)}
 
 resources:
-  - Description: shopearnpro application
+  - Description: ShopEarnPro Cart Application
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
   - Resources: ${file(dbtables/market.yml)}
   - Outputs:
       Domain:
-        Description: "shopnearn url link"
+        Description: "ShopEarnPro url"
         Value: "https://${sls:stage}.${self:custom.domain}"
+
+stages:
+  default:
+    params:
+      domain: ${sls:stage}-${sls:instanceId}-cart.shopearnpro.com
+  prod:
+    params:
+      domain: cart.shopearnpro.com
 
 package:
   individually: true
   patterns:
     - '!**'
-
-stepFunctions:
-  validate: true
-  stateMachines:
-    ${file(statemachines/state-machines.yml)}
 
 plugins:
   - serverless-iam-roles-per-function

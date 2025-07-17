@@ -1,29 +1,30 @@
+import json
+import os
 from abc import abstractmethod, ABC
+from decimal import Decimal
+from json import JSONEncoder
 
 from boto3 import resource
-from botocore.config import Config
+from boto3.dynamodb.types import TypeDeserializer
+from config import ddb_config
 
-import model
-import os
-
-config = Config(
-    retries={
-        'max_attempts': 7,
-        'mode': 'standard'
-    },
-    read_timeout=20,
-    connect_timeout=10,
-)
-
-MARKET = os.environ["MARKET_TABLE"]
-# client = boto3.client('dynamodb')
-ddb = resource('dynamodb', config=config)
-market = ddb.Table(MARKET)
+MARKET_TABLE = os.environ["MARKET_TABLE"]
+ddb = resource('dynamodb', config=ddb_config)
+market = ddb.Table(MARKET_TABLE)
+deserializer = TypeDeserializer()
 
 
-def db_write():
-    print("db_write executed")
+class DecimalEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return int(o) if o % 1 == 0 else float(o)
+        return super().default(o)
 
+def ddb_dumps(item):
+    return json.dumps(item, cls=DecimalEncoder)
+
+def from_ddb(item):
+    return {k: deserializer.deserialize(v) for k, v in item.items()}
 
 def get_handler():
     return DdbProductHandler()
