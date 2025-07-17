@@ -5,20 +5,21 @@ nextId A#id B#id C#id U#id
     B#ULID - bill (invoice)
     C#ULID - cart
     U#ULID - user
-    I#ULID - item
     O#ULID - order
+    O#ULID#001 - order item 1
+    O#ULID#002 - order item 2
     P#ULID - product
     R#ULID - reward
     P#ULID - payment
 
 ## Basic entity keys
-| Entity       | pk                             | sk                             |
-|--------------|--------------------------------|--------------------------------|
-| User Detail  | U#01JZ10H7X367VB2NF4YQ973DHW   | U#01JZ10H7X367VB2NF4YQ973DHW#D |
-| User Product | U#01JZ10H7X367VB2NF4YQ973DHW#P | P#01JZ10H7X367VB2NF4YQ973DHW   |
-| User Order   | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHW#D |
-| Order Item   | O#01JZ10H7X367VB2NF4YQ973DHW#O | I#01JZ10H7X367VB2NF4YQ973DHW   |
-| User Cart    | U#01JZ10H7X367VB2NF4YQ973DHW#C | 173734623743832                |
+| Entity         | pk                             | sk                               |
+|----------------|--------------------------------|----------------------------------|
+| User Detail    | U#01JZ10H7X367VB2NF4YQ973DHW   | U#01JZ10H7X367VB2NF4YQ973DHW     |
+| User Product   | U#01JZ10H7X367VB2NF4YQ973DHW#P | P#01JZ10H7X367VB2NF4YQ973DHW     |
+| User Order     | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHZ     |
+| Order Item     | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHZ#001 |
+| User Cart Item | U#01JZ10H7X367VB2NF4YQ973DHW#C | 173734623743832                  |
  ---------------------------------------------------------------------------------
 
 BETWEEN "U#00000000000000000000000000" AND "U#ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
