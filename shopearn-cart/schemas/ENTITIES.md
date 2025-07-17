@@ -1,5 +1,3 @@
-nextId A#id B#id C#id U#id
-
 # Basic entities
     A#ULID - account
     B#ULID - bill (invoice)
@@ -18,7 +16,7 @@ nextId A#id B#id C#id U#id
 | User Detail    | U#01JZ10H7X367VB2NF4YQ973DHW   | U#01JZ10H7X367VB2NF4YQ973DHW     |
 | User Product   | U#01JZ10H7X367VB2NF4YQ973DHW#P | P#01JZ10H7X367VB2NF4YQ973DHW     |
 | User Order     | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHZ     |
-| Order Item     | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHZ#001 |
+| Order Item     | U#01JZ10H7X367VB2NF4YQ973DHW#I | O#01JZ10H7X367VB2NF4YQ973DHZ#001 |
 | User Cart Item | U#01JZ10H7X367VB2NF4YQ973DHW#C | 173734623743832                  |
  ---------------------------------------------------------------------------------
 
@@ -37,7 +35,7 @@ Fetch last 10 orders (objects of type O#) for a given user.
     "Select": "ALL_ATTRIBUTES",
     "KeyConditionExpression": "pk = :k AND sk BETWEEN :s AND :e",
     "ExpressionAttributeValues": {
-        ":k": {"S": "user@example.com"},
+        ":k": {"S": "U#01JZ10H7X367VB2NF4YQ973DHW#O"},
         ":s": {"S": "O#00000000000000000000000000"},
         ":e": {"S": "O#ZZZZZZZZZZZZZZZZZZZZZZZZZZ"}
     },
