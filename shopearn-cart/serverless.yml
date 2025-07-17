@@ -30,7 +30,7 @@ custom:
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
-  db_table: Market_${sls:stage}
+  db_table: ${param:marketTable}
 
 provider:
   name: aws
@@ -68,7 +68,7 @@ provider:
   environment:
     LOG_LEVEL: INFO
     STAGE: ${opt:stage,'dev'}
-    APP_CONFIG: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
+    APP_CONFIG: '${param:config}'
     POWERTOOLS_LOGGER_LOG_EVENT: true
     POWERTOOLS_SERVICE_NAME: shopearn-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
@@ -178,9 +178,13 @@ stages:
   default:
     params:
       domain: ${sls:stage}-${sls:instanceId}-cart.${self:custom.domain}
+      config: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
+      marketTable: Market_${opt:stage,'dev'}
   prod:
     params:
       domain: cart.${self:custom.domain}
+      config: ${aws:ssm:/prod/${self:service}/config}
+      marketTable: Market
 
 package:
   individually: true
