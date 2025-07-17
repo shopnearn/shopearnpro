@@ -24,7 +24,7 @@ custom:
     number: 3
   scripts:
     hooks:
-      after:deploy:finalize: serverless invoke --function init --aws-profile shopnearn-${sls:stage}
+      after:deploy:finalize: serverless invoke --function init --aws-profile ${param:awsProfile}
   userPoolClientId:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
@@ -182,11 +182,13 @@ resources:
 stages:
   default:
     params:
+      awsProfile: ${opt:aws-profile,"shopnearn-${opt:stage,'dev'}"}
       domain: ${sls:stage}-${sls:instanceId}-cart.${self:custom.domain}
       config: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
       marketTable: Market_${opt:stage,'dev'}
   prod:
     params:
+      awsProfile: ${opt:aws-profile}
       domain: cart.${self:custom.domain}
       config: ${aws:ssm:/prod/${self:service}/config}
       marketTable: Market
