@@ -66,8 +66,9 @@ provider:
           - ${self:custom.userPoolClientId}
         type: jwt
   environment:
-    STAGE: ${opt:stage, 'dev'}
     LOG_LEVEL: INFO
+    STAGE: ${opt:stage,'dev'}
+    APP_CONFIG: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
     POWERTOOLS_LOGGER_LOG_EVENT: true
     POWERTOOLS_SERVICE_NAME: shopearn-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
