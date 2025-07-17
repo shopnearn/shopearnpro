@@ -4,7 +4,7 @@ custom:
   #  customDomains:
   #    - http:
   #        stage: ${sls:stage}
-  #        domainName: ${sls:stage}-${sls:instanceId}.shopearnpro.com
+  #        domainName: ${sls:stage}-${sls:instanceId}.${self:custom.domain}
   #        basePath: ''
   #        apiType: http
   #        endpointType: REGIONAL
@@ -89,7 +89,7 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
-    description: Shopping cart
+    description: Shopping cart service
     memorySize: 256
     layers:
       - ${self:custom.power_tools_layer}
@@ -106,7 +106,7 @@ functions:
   calc:
     handler: index.handler
     module: lambda/calc
-    description: Bonus calculation
+    description: Bonus calculation logic
     iamRoleStatementsName: lambda-calc-role
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
@@ -170,16 +170,16 @@ resources:
   - Resources: ${file(dbtables/market.yml)}
   - Outputs:
       Domain:
-        Description: "ShopEarnPro url"
-        Value: "https://${sls:stage}.${self:custom.domain}"
+        Description: "ShopEarnPro URL"
+        Value: "https://${param:domain}"
 
 stages:
   default:
     params:
-      domain: ${sls:stage}-${sls:instanceId}-cart.shopearnpro.com
+      domain: ${sls:stage}-${sls:instanceId}-cart.${self:custom.domain}
   prod:
     params:
-      domain: cart.shopearnpro.com
+      domain: cart.${self:custom.domain}
 
 package:
   individually: true
