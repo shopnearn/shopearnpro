@@ -10,15 +10,15 @@ import log
 import ulid
 import web
 
-http = web.ApiHttpResolver()
+app = web.AppHttpResolver()
 metrics = log.AppMetrics()
 tracer = log.AppTracer(service="calc")
 logger = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter(), datefmt="%Y%m%dT%H%M%S.%f")
 
 
-@http.get("/calc/view",
-          summary="Get all items from DynamoDB",
-          description="Get all items from DynamoDB")
+@app.get("/calc/view",
+         summary="Get all items from DynamoDB",
+         description="Get all items from DynamoDB")
 @tracer.capture_method(capture_response=True)
 def view():
     response = ddb.market.scan()
@@ -32,29 +32,29 @@ def view():
     return items
 
 
-@http.get("/calc/compute",
-          summary="Calculate bonus",
-          description="Calculate bonus for a transaction")
+@app.get("/calc/compute",
+         summary="Calculate bonus",
+         description="Calculate bonus for a transaction")
 def calc():
     pass
 
 
-@http.put("/calc/product",
-          summary="Save product to DynamoDB",
-          description="Save product to DynamoDB")
+@app.put("/calc/product",
+         summary="Save product to DynamoDB",
+         description="Save product to DynamoDB")
 def save_product():
     pid = str(ulid.ULID())
     try:
-        product: model.Product = parse(http.current_event.raw_event, model=model.Product, envelope=ApiGatewayV2Envelope)
+        product: model.Product = parse(app.current_event.raw_event, model=model.Product, envelope=ApiGatewayV2Envelope)
         product.id = pid
         logger.info(f"Saving product: {product}")
     except ValidationError as e:
         logger.error(f"Validation error: {e}")
 
 
-@http.get("/calc/product/<pid>",
-          summary="Get product by id",
-          description="Get product by id from DynamoDB")
+@app.get("/calc/product/<pid>",
+         summary="Get product by id",
+         description="Get product by id from DynamoDB")
 def get_product(pid: str):
     try:
         logger.info(f"Get product: {pid}")
@@ -66,4 +66,4 @@ def get_product(pid: str):
 @metrics.log_metrics(capture_cold_start_metric=True)
 @logger.inject_lambda_context(correlation_id_path=web.API_GATEWAY_REST, log_event=logger.log_level in ["info", "debug"])
 def handler(event, context):
-    return http.resolve(event, context)
+    return app.resolve(event, context)

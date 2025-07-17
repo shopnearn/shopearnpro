@@ -1,11 +1,10 @@
-import calendar
-import datetime
 import os
-import uuid
-from decimal import Decimal
 from http.cookies import SimpleCookie
+
 import cognitojwt
 from aws_lambda_powertools import Tracer
+
+from ulid import ULID
 
 tracer = Tracer()
 
@@ -22,36 +21,12 @@ class NotFoundException(Exception):
 
 
 @tracer.capture_method
-def handle_decimal_type(obj):
-    """
-    json serializer which works with Decimal types returned from DynamoDB.
-    """
-    if isinstance(obj, Decimal):
-        if float(obj).is_integer():
-            return int(obj)
-        else:
-            return float(obj)
-    raise TypeError
-
-
-@tracer.capture_method
-def generate_ttl(days=1):
-    """
-    Generate epoch timestamp for number days in future
-    """
-    future = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=days)
-    return calendar.timegm(future.utctimetuple())
-
-
-@tracer.capture_method
 def get_user_sub(jwt_token):
     """
     Validate JWT claims & retrieve user identifier
     """
     try:
-        verified_claims = cognitojwt.decode(
-            jwt_token, os.environ["AWS_REGION"], os.environ["USERPOOL_ID"]
-        )
+        verified_claims = cognitojwt.decode(jwt_token, os.environ["AWS_REGION"], os.environ["USERPOOL_ID"])
     except (cognitojwt.CognitoJWTException, ValueError):
         verified_claims = {}
     return verified_claims.get("sub")
@@ -68,7 +43,7 @@ def get_cart_id(event_headers):
         cart_cookie = cookie["cartId"].value
         generated = False
     except KeyError:
-        cart_cookie = str(uuid.uuid4())
+        cart_cookie = str(ULID())
         generated = True
     return cart_cookie, generated
 

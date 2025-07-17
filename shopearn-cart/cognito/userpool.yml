@@ -24,11 +24,11 @@ CognitoUserPool:
         RequireNumbers: true
         RequireSymbols: false
         RequireUppercase: true
-    UserPoolName: ${self:service}-user-pool-${sls:stage}
+    UserPoolName: ${self:custom.userPoolName}
 CognitoUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
   Properties:
-    ClientName: ${self:service}-user-pool-client-${sls:stage}
+    ClientName: ${self:custom.userPoolClientName}
     UserPoolId:
       Ref: CognitoUserPool
     GenerateSecret: true

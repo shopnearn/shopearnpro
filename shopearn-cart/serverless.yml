@@ -25,6 +25,10 @@ custom:
   scripts:
     hooks:
       after:deploy:finalize: serverless invoke --function init --aws-profile ${param:awsProfile}
+  userPoolName: ${self:service}-user-pool-${sls:stage}
+  userPoolId:
+    Ref: CognitoUserPool
+  userPoolClientName: ${self:service}-user-pool-client-${sls:stage}
   userPoolClientId:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
@@ -61,7 +65,7 @@ provider:
             - - "https://cognito-idp."
               - ${self:provider.region}
               - ".amazonaws.com/"
-              - Ref: CognitoUserPool
+              - ${self:custom.userPoolId}
         audience:
           - ${self:custom.userPoolClientId}
         type: jwt
@@ -69,6 +73,7 @@ provider:
     LOG_LEVEL: INFO
     STAGE: ${opt:stage,'dev'}
     APP_CONFIG: '${param:config}'
+    USERPOOL_ID: ${self:custom.userPoolId}
     POWERTOOLS_LOGGER_LOG_EVENT: true
     POWERTOOLS_SERVICE_NAME: shopearn-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
@@ -79,14 +84,14 @@ provider:
 functions:
   init:
     handler: init.handler
-    module: lambda/scripts
-    description: Database init logic
+    module: lambda/init
+    description: Application init logic
     iamRoleStatementsName: lambda-init-role
     iamRoleStatements: ${file(iamroles/lambda-init-role.yml)}
     timeout: 900
     package:
       patterns:
-        - 'lambda/scripts/init.*'
+        - 'lambda/init/*'
   cart:
     handler: index.handler
     module: lambda/cart
@@ -105,8 +110,8 @@ functions:
       - httpApi:
           path: /cart/{proxy+}
           method: any
-          authorizer:
-            name: cognitoAuthorizer
+          #authorizer:
+          #  name: cognitoAuthorizer
   calc:
     handler: index.handler
     module: lambda/calc
