@@ -11,10 +11,17 @@ nextId A#id B#id C#id U#id
     R#ULID - reward
     P#ULID - payment
 
-## Example user id
-U#01JZ10H7X367VB2NF4YQ973DHW
-U#00000000000000000000000000
-U#ZZZZZZZZZZZZZZZZZZZZZZZZZZ
+## Basic entity keys
+| Entity       | pk                             | sk                             |
+|--------------|--------------------------------|--------------------------------|
+| User Detail  | U#01JZ10H7X367VB2NF4YQ973DHW   | U#01JZ10H7X367VB2NF4YQ973DHW#D |
+| User Product | U#01JZ10H7X367VB2NF4YQ973DHW#P | P#01JZ10H7X367VB2NF4YQ973DHW   |
+| User Order   | U#01JZ10H7X367VB2NF4YQ973DHW#O | O#01JZ10H7X367VB2NF4YQ973DHW#D |
+| Order Item   | O#01JZ10H7X367VB2NF4YQ973DHW#O | I#01JZ10H7X367VB2NF4YQ973DHW   |
+| User Cart    | U#01JZ10H7X367VB2NF4YQ973DHW#C | 173734623743832                |
+ ---------------------------------------------------------------------------------
+
+BETWEEN "U#00000000000000000000000000" AND "U#ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
 
 I#0000000000
 I#2000000000
