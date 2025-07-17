@@ -21,7 +21,6 @@ logger = log.AppLogger(service="calc", logger_formatter=log.LambdaLogFormatter()
           description="Get all items from DynamoDB")
 @tracer.capture_method(capture_response=True)
 def view():
-    uid = str(ulid.ULID())
     response = ddb.market.scan()
     items = response['Items']
     while 'LastEvaluatedKey' in response:
@@ -39,13 +38,26 @@ def view():
 def calc():
     pass
 
-@http.get("/save/product",
+
+@http.put("/calc/product",
           summary="Save product to DynamoDB",
           description="Save product to DynamoDB")
 def save_product():
+    pid = str(ulid.ULID())
     try:
         product: model.Product = parse(http.current_event.raw_event, model=model.Product, envelope=ApiGatewayV2Envelope)
+        product.id = pid
         logger.info(f"Saving product: {product}")
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+
+
+@http.get("/calc/product/<pid>",
+          summary="Get product by id",
+          description="Get product by id from DynamoDB")
+def get_product(pid: str):
+    try:
+        logger.info(f"Get product: {pid}")
     except ValidationError as e:
         logger.error(f"Validation error: {e}")
 

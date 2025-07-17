@@ -5,7 +5,7 @@ TypedUlidId = Annotated[str, StringConstraints(min_length=28, max_length=64)]
 
 
 class Product(BaseModel):
-    id: TypedUlidId
+    id: TypedUlidId | None = None
     name: str = "default"
     desc: str | None = None
     sku: str | None = None

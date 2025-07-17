@@ -68,7 +68,8 @@ provider:
   environment:
     STAGE: ${opt:stage, 'dev'}
     LOG_LEVEL: INFO
-    POWERTOOLS_SERVICE_NAME: service-cart
+    POWERTOOLS_LOGGER_LOG_EVENT: true
+    POWERTOOLS_SERVICE_NAME: shopearn-cart
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
     POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
     POWERTOOLS_TRACER_CAPTURE_ERROR: true
@@ -78,6 +79,7 @@ functions:
   init:
     handler: init.handler
     module: lambda/scripts
+    description: Database init logic
     iamRoleStatementsName: lambda-init-role
     iamRoleStatements: ${file(iamroles/lambda-init-role.yml)}
     timeout: 900
@@ -87,6 +89,7 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
+    description: Shopping cart
     memorySize: 256
     layers:
       - ${self:custom.power_tools_layer}
@@ -103,6 +106,7 @@ functions:
   calc:
     handler: index.handler
     module: lambda/calc
+    description: Bonus calculation
     iamRoleStatementsName: lambda-calc-role
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
@@ -123,7 +127,7 @@ layers:
   app: # AppLambdaLayer
     path: app-layer
     name: app-layer-${sls:stage}
-    description: Service lambda layer for ${sls:stage}
+    description: Application base lambda layer (${sls:stage})
     package:
       patterns:
         - '**/*.py'
