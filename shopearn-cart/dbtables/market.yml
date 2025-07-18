@@ -29,4 +29,3 @@ MarketTable:
           ProjectionType: KEYS_ONLY
     StreamSpecification:
       StreamViewType: NEW_AND_OLD_IMAGES
-

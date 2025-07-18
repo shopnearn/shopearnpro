@@ -33,7 +33,7 @@ custom:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
   s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
-  power_tools_layer: ${file(config.json):AWSLambdaPowerToolsLayerARM}
+  power_tools_layer: ${file(config.yml):AWSLambdaPowerToolsLayerARM}
   db_table: ${param:marketTable}
 
 provider:
@@ -119,7 +119,6 @@ functions:
     iamRoleStatementsName: lambda-calc-role
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
-    tracing: true
     timeout: 5
     url: false
     layers:
