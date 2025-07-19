@@ -1,0 +1,62 @@
+SiteCloudFrontOriginAccessControl:
+  Type: AWS::CloudFront::OriginAccessControl
+  Properties:
+    OriginAccessControlConfig:
+      Name: SiteOriginAccessControl
+      Description: Access control for site origin
+      OriginAccessControlOriginType: s3
+      SigningBehavior: always
+      SigningProtocol: sigv4
+
+SiteCloudFrontDistribution:
+  Type: AWS::CloudFront::Distribution
+  Properties:
+    DistributionConfig:
+      Enabled: false
+      Comment: CloudFront distribution
+      DefaultCacheBehavior:
+        TargetOriginId: SiteS3Origin
+        ViewerProtocolPolicy: redirect-to-https
+        AllowedMethods: [GET, HEAD]
+        CachedMethods: [GET, HEAD]
+        ForwardedValues:
+          QueryString: false
+          Cookies:
+            Forward: none
+        #FunctionAssociations:
+        #  - EventType: viewer-request
+        #    FunctionARN: !GetAtt FrontlineCloudFrontFunction.FunctionARN
+      Origins:
+        - Id: SiteS3Origin
+          DomainName: !GetAtt SiteBucket.RegionalDomainName
+          S3OriginConfig: {}  # Required even if empty
+          OriginAccessControlId: !Ref SiteCloudFrontOriginAccessControl
+
+FrontlineKeyValueStore:
+  Type: AWS::CloudFront::KeyValueStore
+  Properties:
+    Name: frontline-kvs-${opt:stage,'dev'}
+
+FrontlineCloudFrontFunction:
+  Type: AWS::CloudFront::Function
+  Properties:
+    Name: frontline-fleet-redirect-${opt:stage,'dev'}
+    AutoPublish: false
+    FunctionConfig:
+      Comment: Frontline fleet redirect function
+      Runtime: cloudfront-js-1.0
+    FunctionCode: |
+      const kvs = cf.kvs();
+      function handler(event) {
+        var kv = kvs.get('redirect:/fr');
+        if (event.request.uri === '/fr') {
+          return {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+              location: { value: kv || '/default' },
+            },
+          };
+        }
+        return event.request;
+      }

@@ -16,6 +16,7 @@
     "serverless-plugin-scripts": "^1.0.2"
   },
   "devDependencies": {
+    "cloudfront": "^0.4.1",
     "eslint-plugin-import": "^2.32.0",
     "serverless-domain-manager": "^8.0.0",
     "serverless-iam-roles-per-function": "^3.2.0",

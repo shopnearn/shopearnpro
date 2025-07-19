@@ -32,7 +32,6 @@ custom:
   userPoolClientId:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
-  s3_role_resource: arn:aws:iam::${aws:accountId}:role/s3-access-role
   power_tools_layer: ${file(config.yml):AWSLambdaPowerToolsLayerARM}
   db_table: ${param:marketTable}
 
@@ -175,9 +174,11 @@ stepFunctions:
 
 resources:
   - Description: ShopEarnPro Cart Application
+  - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
   - Resources: ${file(dbtables/market.yml)}
+  # - Resources: ${file(cloudfront/cloudfront.yml)}
   - Outputs:
       Domain:
         Description: "ShopEarnPro URL"
@@ -187,15 +188,17 @@ stages:
   default:
     params:
       awsProfile: ${opt:aws-profile,"shopnearn-${opt:stage,'dev'}"}
-      domain: ${sls:stage}-${sls:instanceId}-cart.${self:custom.domain}
+      domain: ${sls:stage}-${sls:instanceId}-app.${self:custom.domain}
       config: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
       marketTable: Market_${opt:stage,'dev'}
+      siteBucket: shopearn-${opt:stage,'dev'}.s3.amazonaws.com
   prod:
     params:
       awsProfile: ${opt:aws-profile}
-      domain: cart.${self:custom.domain}
+      domain: app.${self:custom.domain}
       config: ${aws:ssm:/prod/${self:service}/config}
       marketTable: Market
+      siteBucket: shopearn.s3.amazonaws.com
 
 package:
   individually: true

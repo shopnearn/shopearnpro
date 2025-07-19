@@ -1,0 +1,15 @@
+SiteBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    BucketName: ${param:siteBucket}
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: false
+      BlockPublicPolicy: false
+      IgnorePublicAcls: false
+      RestrictPublicBuckets: false
+    LifecycleConfiguration:
+      Rules:
+        - Id: CleanupTemp
+          Status: Enabled
+          Prefix: temp/
+          ExpirationInDays: 7
