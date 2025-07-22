@@ -12,6 +12,12 @@
   Action:
     - dynamodb:PutItem
   Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.db_table}"
-  Condition: # limit the table exposure to the keys owned by cognito user
-    "ForAllValues:StringEquals": # join to prevent recursive sls variable resolution
-      "dynamodb:LeadingKeys": [ Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}']], Fn::Join: ['', ['U#$', '{cognito-identity.amazonaws.com:sub}#O']]]
+  Condition: # restrict user access to subset of rows and attributes
+    "ForAllValues:StringEquals": # limit the table exposure to cognito user keys
+      "dynamodb:LeadingKeys": # join to prevent recursive sls variable resolution
+        - Fn::Join: [ '', [ 'U#$', '{cognito-identity.amazonaws.com:sub}' ] ]
+        - Fn::Join: [ '', [ 'U#$', '{cognito-identity.amazonaws.com:sub}#O' ] ]
+      "dynamodb:Attributes": [ "name", "phone", "addr", "profile" ]
+    "StringEqualsIfExists": # prevent data leakage of restricted attributes
+      "dynamodb:Select": "SPECIFIC_ATTRIBUTES"
+      "dynamodb:ReturnValues": [ "NONE", "UPDATED_OLD", "UPDATED_NEW" ]

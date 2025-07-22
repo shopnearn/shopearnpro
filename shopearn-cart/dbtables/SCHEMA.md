@@ -8,7 +8,7 @@ The following Access Patterns are defined for the application.
 
 1. Display rewards for user
 2. Calculate reward distribution
-3. Get user profile
+3. Display user profile
 4. Get the list of last N orders for user
 5. Get a single order with all its items by id
 
