@@ -3,7 +3,7 @@
     "pk": "A#system",
     "sk": "A#system",
     "id": "system",
-    "type": "account",
+    "tp": "account",
     "name": "System Account",
     "refcode": "SYS100",
     "phone": "212-111-1111"
@@ -11,7 +11,8 @@
   {
     "pk": "U#rabinovich",
     "sk": "U#rabinovich",
-    "type": "user",
+    "tp": "user",
+    "id": "rabin",
     "name": "Rabinovich",
     "email": "rabinovich@gmail.com",
     "refcode": "RAB100",
@@ -20,8 +21,9 @@
   {
     "pk": "U#klava",
     "sk": "U#klava",
-    "type": "user",
+    "tp": "user",
     "name": "Klava",
+    "login": "klava72",
     "email": "klava@gmail.com",
     "refs": [
       "U#rabinovich"
@@ -32,7 +34,8 @@
   {
     "pk": "U#nicole",
     "sk": "U#nicole",
-    "type": "user",
+    "tp": "user",
+    "id": "nika",
     "name": "Nicole",
     "refs": [
       "U#klava",
@@ -44,7 +47,7 @@
   {
     "pk": "U#rabinovich#P",
     "sk": "P#01JZ10H7X367VB2NF4YQ973DHW",
-    "type": "product",
+    "tp": "product",
     "name": "Rusted sword",
     "qty": 1,
     "price": 100
@@ -52,7 +55,8 @@
   {
     "pk": "U#rabinovich#P",
     "sk": "P#01JZ10H7X367VB2NF4YQ973DHZ",
-    "type": "product",
+    "tp": "product",
+    "id": "RUST101",
     "name": "New sword",
     "qty": 10,
     "price": 200

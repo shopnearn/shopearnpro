@@ -14,6 +14,8 @@ MarketTable:
         AttributeType: S
       - AttributeName: id
         AttributeType: S
+      - AttributeName: tp
+        AttributeType: S
     BillingMode: PAY_PER_REQUEST
     TimeToLiveSpecification:
       AttributeName: ttl
@@ -23,11 +25,21 @@ MarketTable:
     StreamSpecification:
       StreamViewType: NEW_AND_OLD_IMAGES
     GlobalSecondaryIndexes:
+      - IndexName: ReverseIndex
+        KeySchema:
+          - AttributeName: sk
+            KeyType: HASH
+          - AttributeName: pk
+            KeyType: RANGE
+        Projection:
+          ProjectionType: KEYS_ONLY
       - IndexName: IdLookupIndex
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+          - AttributeName: tp
+            KeyType: RANGE
         Projection:
-          ProjectionType: INCLUDE
-          NonKeyAttributes:
-            - type
+          ProjectionType: KEYS_ONLY
+          #NonKeyAttributes:
+          #  - name
