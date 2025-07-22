@@ -13,11 +13,11 @@ The following Access Patterns are defined for the application.
 
 ## Database Index Schema
 
-| Index   | Name          | PK | SK | Purpose                     | Notes  |
-|---------|---------------|----|----|-----------------------------|--------|
-| Primary | -             | pk | sk | lookup by user key, updates |        |
-| Reverse | ReverseIndex  | sk | pk | lookup by system key        |        |
-| Id      | IdLookupIndex | id | tp | lookup by business id       | sparse |
+| Index     | Name          | PK | SK | Purpose                     | Notes  |
+|-----------|---------------|----|----|-----------------------------|--------|
+| Primary   | -             | pk | sk | lookup by user key, updates |        |
+| Reverse   | ReverseIndex  | sk | pk | lookup by system key        |        |
+| Id Lookup | IdLookupIndex | id | tp | lookup by business id       | sparse |
 
 ### Partition and System keys
 PK stands for *Partition Key*, and SK for *System Key* (for the Primary index it also doubles as the *Sort Key*). *System Key* is a globally unique system identifier of an item, never visible to the end user. Each item can also have an optional business id (represented by *id* attribute), as well as the item type (the *tp* attribute). If both *id* and *tp* are present in the table, the item is projected to the IdLookupIndex and can be efficiently found via id lookup.
@@ -85,6 +85,4 @@ Below is a sample data layout in the #O shard:
 | U#rabinovich#O | O#01JZ10H7X367VB2NF4YQ973DXZ#001 | order item 1   |
 
 The multi-shard design has the advantage of more precisely controlling the user access to its own data. For example, the profile shard can have read/write access pattern, whereas the Orders or Rewards shards can be read-only for the user, as they are updated asynchronously via a different process.
-
-
 
