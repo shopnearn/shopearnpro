@@ -6,10 +6,11 @@ The db schema below follows one table design principle, and currently consists o
 
 The following Access Patterns are defined for the application.
 
-1. Get user profile
-2. Get the list of last N orders for user
-3. Display bonuses for user
-4. Get a single order with all its items by id
+1. Display rewards for user
+2. Calculate reward distribution
+3. Get user profile
+4. Get the list of last N orders for user
+5. Get a single order with all its items by id
 
 ## Database Index Schema
 
