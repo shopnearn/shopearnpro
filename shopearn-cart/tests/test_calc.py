@@ -1,14 +1,19 @@
 from datetime import datetime
-import sys
-import os
+
 
 def test_calc():
-    timestamp = 2000000000  # example: Unix timestamp (seconds since epoch)
+    timestamp1 = 1810000000  # example: Unix timestamp (seconds since epoch)
+    timestamp2 = 1800000000  # example: Unix timestamp (seconds since epoch)
 
     # Convert to datetime object
-    dt = datetime.fromtimestamp(timestamp)
+    dt1 = datetime.fromtimestamp(timestamp1)
+    dt2 = datetime.fromtimestamp(timestamp2)
+
+    print()
+    print("abc".endswith("c"))
 
     # Format to string
-    date_string = dt.strftime("%Y-%m-%d %H:%M:%S")
+    date_string1 = dt1.strftime("%Y-%m-%d %H:%M:%S")
+    date_string2 = dt2.strftime("%Y-%m-%d %H:%M:%S")
 
-    print("Datetime:", date_string)
+    print(f"Datetime:{date_string1} {date_string2}")

@@ -1,9 +1,19 @@
 [
   {
+    "pk": "A#system",
+    "sk": "A#system",
+    "id": "system",
+    "type": "account",
+    "name": "System Account",
+    "refcode": "SYS100",
+    "phone": "212-111-1111"
+  },
+  {
     "pk": "U#rabinovich",
     "sk": "U#rabinovich",
     "type": "user",
     "name": "Rabinovich",
+    "email": "rabinovich@gmail.com",
     "refcode": "RAB100",
     "phone": "212-123-4567"
   },
@@ -12,6 +22,7 @@
     "sk": "U#klava",
     "type": "user",
     "name": "Klava",
+    "email": "klava@gmail.com",
     "refs": [
       "U#rabinovich"
     ],

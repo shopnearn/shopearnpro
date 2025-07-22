@@ -177,7 +177,7 @@ resources:
   - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
-  - Resources: ${file(dbtables/market.yml)}
+  - Resources: ${file(dbtables/market-table.yml)}
   # - Resources: ${file(cloudfront/cloudfront.yml)}
   - Outputs:
       Domain:
