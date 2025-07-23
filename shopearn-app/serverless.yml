@@ -20,12 +20,14 @@ custom:
       - '**/*.exe'
     slimPatternsAppendDefaults: false
   stage: ${opt:stage, 'dev'}
-  capStage:
+  stageCap:
     dev: Dev
     dev1: Dev1
+    dev2: Dev2
     qa: Qa
     uat: Uat
-    prod: ''
+    prod: Prod
+  stageName: ${self:custom.stageCap.${self:custom.stage}}
   prune:
     automatic: true
     number: 3
@@ -40,7 +42,7 @@ custom:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
   power_tools_layer: ${file(config.yml):AWSLambdaPowerToolsLayerARM}
-  db_table: Market${param:resourceSuffix}
+  db_table: Market${param:stageSuffixCap}
 
 provider:
   name: aws
@@ -61,6 +63,7 @@ provider:
   httpApi:
     payload: '2.0'
     metrics: true
+    description: ${self:service} API Gateway (${self:custom.stageName})
     disableDefaultEndpoint: false
     authorizers:
       cognitoAuthorizer:
@@ -91,7 +94,7 @@ functions:
   init:
     handler: init.handler
     module: lambda/init
-    description: Application init logic (${sls:stage})
+    description: Application init logic (${self:custom.stageName})
     iamRoleStatementsName: lambda-init-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-init-role.yml)}
     timeout: 900
@@ -101,7 +104,7 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
-    description: Shopping cart service (${sls:stage})
+    description: Shopping cart service (${self:custom.stageName})
     iamRoleStatementsName: lambda-cart-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-cart-role.yml)}
     memorySize: 256
@@ -120,7 +123,7 @@ functions:
   calc:
     handler: index.handler
     module: lambda/calc
-    description: Bonus calculation logic (${sls:stage})
+    description: Bonus calculation logic (${self:custom.stageName})
     iamRoleStatementsName: lambda-calc-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
@@ -139,7 +142,7 @@ functions:
   stream:
     handler: market.processor
     module: lambda/stream
-    description: Market table stream processor (${sls:stage})
+    description: Market table stream processor (${self:custom.stageName})
     iamRoleStatementsName: lambda-ddb-stream-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
     layers:
@@ -157,8 +160,8 @@ functions:
 layers:
   app: # AppLambdaLayer
     path: app-layer
-    name: app-layer-${sls:stage}
-    description: Application lambda layer (${sls:stage})
+    name: app-layer${param:stageSuffix}
+    description: Application lambda layer (${self:custom.stageName})
     package:
       patterns:
         - '**/*.py'
@@ -178,7 +181,7 @@ stepFunctions:
     ${file(statemachines/state-machines.yml)}
 
 resources:
-  - Description: ShopEarnPro Application (${sls:stage})
+  - Description: ShopEarnPro Application (${self:custom.stageName})
   - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
@@ -193,14 +196,14 @@ stages:
   default:
     params:
       stageSuffix: '-${self:custom.stage}'
-      resourceSuffix: ${self:custom.capStage.${self:custom.stage}}
+      stageSuffixCap: ${self:custom.stageName}
       awsProfile: ${opt:aws-profile,"shopnearn-${sls:stage}"}
       domain: ${sls:stage}-${sls:instanceId}.${self:custom.domain}
       siteBucket: shopearn-${sls:stage}.s3.amazonaws.com
   prod:
     params:
       stageSuffix: ''
-      resourceSuffix: ''
+      stageSuffixCap: ''
       awsProfile: ${opt:aws-profile}
       domain: app.${self:custom.domain}
       siteBucket: shopearn.s3.amazonaws.com

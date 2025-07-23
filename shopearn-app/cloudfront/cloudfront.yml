@@ -13,7 +13,7 @@ SiteCloudFrontDistribution:
   Properties:
     DistributionConfig:
       Enabled: false
-      Comment: CloudFront distribution
+      Comment: CloudFront (${self:custom.stageName})
       DefaultCacheBehavior:
         TargetOriginId: SiteS3Origin
         ViewerProtocolPolicy: redirect-to-https
