@@ -1,4 +1,4 @@
-service: shopearn-cart
+service: shopearn
 
 custom:
   #  customDomains:
@@ -19,21 +19,28 @@ custom:
       - '**/*.egg-info*'
       - '**/*.exe'
     slimPatternsAppendDefaults: false
+  stage: ${opt:stage, 'dev'}
+  capStage:
+    dev: Dev
+    dev1: Dev1
+    qa: Qa
+    uat: Uat
+    prod: ''
   prune:
     automatic: true
     number: 3
   scripts:
     hooks:
-      after:deploy:finalize: serverless invoke --function init --aws-profile ${param:awsProfile}
-  userPoolName: ${self:service}-user-pool-${sls:stage}
+      after:deploy:finalize: serverless invoke --function init --aws-profile ${param:awsProfile} --stage ${self:custom.stage}
+  userPoolName: ${self:service}-user-pool${param:stageSuffix}
   userPoolId:
     Ref: CognitoUserPool
-  userPoolClientName: ${self:service}-user-pool-client-${sls:stage}
+  userPoolClientName: ${self:service}-user-pool-client${param:stageSuffix}
   userPoolClientId:
     Ref: CognitoUserPoolClient
   domain: shopearnpro.com
   power_tools_layer: ${file(config.yml):AWSLambdaPowerToolsLayerARM}
-  db_table: ${param:marketTable}
+  db_table: Market${param:resourceSuffix}
 
 provider:
   name: aws
@@ -70,11 +77,11 @@ provider:
         type: jwt
   environment:
     LOG_LEVEL: INFO
-    STAGE: ${opt:stage,'dev'}
-    APP_CONFIG: '${param:config}'
+    STAGE: ${sls:stage}
+    APP_CONFIG: 'TODO'
     USERPOOL_ID: ${self:custom.userPoolId}
     POWERTOOLS_LOGGER_LOG_EVENT: true
-    POWERTOOLS_SERVICE_NAME: shopearn-cart
+    POWERTOOLS_SERVICE_NAME: ${self:app}
     POWERTOOLS_METRICS_NAMESPACE: shopnearn
     POWERTOOLS_TRACER_CAPTURE_RESPONSE: true
     POWERTOOLS_TRACER_CAPTURE_ERROR: true
@@ -84,8 +91,8 @@ functions:
   init:
     handler: init.handler
     module: lambda/init
-    description: Application init logic
-    iamRoleStatementsName: lambda-init-role
+    description: Application init logic (${sls:stage})
+    iamRoleStatementsName: lambda-init-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-init-role.yml)}
     timeout: 900
     package:
@@ -94,8 +101,8 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
-    description: Shopping cart service
-    iamRoleStatementsName: lambda-cart-role
+    description: Shopping cart service (${sls:stage})
+    iamRoleStatementsName: lambda-cart-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-cart-role.yml)}
     memorySize: 256
     tracing: true
@@ -114,8 +121,8 @@ functions:
   calc:
     handler: index.handler
     module: lambda/calc
-    description: Bonus calculation logic
-    iamRoleStatementsName: lambda-calc-role
+    description: Bonus calculation logic (${sls:stage})
+    iamRoleStatementsName: lambda-calc-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-calc-role.yml)}
     ephemeralStorageSize: 512
     timeout: 5
@@ -133,8 +140,8 @@ functions:
   stream:
     handler: market.processor
     module: lambda/stream
-    description: Market table stream processor
-    iamRoleStatementsName: lambda-ddb-stream-role
+    description: Market table stream processor (${sls:stage})
+    iamRoleStatementsName: lambda-ddb-stream-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
     tracing: true
     layers:
@@ -153,7 +160,7 @@ layers:
   app: # AppLambdaLayer
     path: app-layer
     name: app-layer-${sls:stage}
-    description: Application base lambda layer (${sls:stage})
+    description: Application lambda layer (${sls:stage})
     package:
       patterns:
         - '**/*.py'
@@ -173,7 +180,7 @@ stepFunctions:
     ${file(statemachines/state-machines.yml)}
 
 resources:
-  - Description: ShopEarnPro Cart Application
+  - Description: ShopEarnPro Application (${sls:stage})
   - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
@@ -181,23 +188,23 @@ resources:
   # - Resources: ${file(cloudfront/cloudfront.yml)}
   - Outputs:
       Domain:
-        Description: "ShopEarnPro URL"
+        Description: "Site URL"
         Value: "https://${param:domain}"
 
 stages:
   default:
     params:
-      awsProfile: ${opt:aws-profile,"shopnearn-${opt:stage,'dev'}"}
-      domain: ${sls:stage}-${sls:instanceId}-app.${self:custom.domain}
-      config: ${aws:ssm:/${opt:stage,'dev'}/${self:service}/config}
-      marketTable: Market_${opt:stage,'dev'}
-      siteBucket: shopearn-${opt:stage,'dev'}.s3.amazonaws.com
+      stageSuffix: '-${self:custom.stage}'
+      resourceSuffix: ${self:custom.capStage.${self:custom.stage}}
+      awsProfile: ${opt:aws-profile,"shopnearn-${sls:stage}"}
+      domain: ${sls:stage}-${sls:instanceId}.${self:custom.domain}
+      siteBucket: shopearn-${sls:stage}.s3.amazonaws.com
   prod:
     params:
+      stageSuffix: ''
+      resourceSuffix: ''
       awsProfile: ${opt:aws-profile}
       domain: app.${self:custom.domain}
-      config: ${aws:ssm:/prod/${self:service}/config}
-      marketTable: Market
       siteBucket: shopearn.s3.amazonaws.com
 
 package:
@@ -213,5 +220,5 @@ plugins:
   - serverless-plugin-scripts
   - serverless-prune-plugin
 
-app: app-${self:service}-${sls:stage}
+app: ${self:service}-app-${sls:stage}
 org: sapientum8

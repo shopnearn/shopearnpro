@@ -1,0 +1,64 @@
+[
+  {
+    "pk": "A#system",
+    "sk": "A#system",
+    "id": "system",
+    "tp": "account",
+    "name": "System Account",
+    "refcode": "SYS100",
+    "phone": "212-111-1111"
+  },
+  {
+    "pk": "U#rabinovich",
+    "sk": "U#rabinovich",
+    "tp": "user",
+    "id": "rabin",
+    "name": "Rabinovich",
+    "email": "rabinovich@gmail.com",
+    "refcode": "RAB100",
+    "phone": "212-123-4567"
+  },
+  {
+    "pk": "U#klava",
+    "sk": "U#klava",
+    "tp": "user",
+    "name": "Klava",
+    "login": "klava72",
+    "email": "klava@gmail.com",
+    "refs": [
+      "U#rabinovich"
+    ],
+    "refcode": "KLA100",
+    "phone": "917-765-4321"
+  },
+  {
+    "pk": "U#nicole",
+    "sk": "U#nicole",
+    "tp": "user",
+    "id": "nika",
+    "name": "Nicole",
+    "refs": [
+      "U#klava",
+      "U#rabinovich"
+    ],
+    "refcode": "NIC100",
+    "phone": "550-145-5587"
+  },
+  {
+    "pk": "U#rabinovich#P",
+    "sk": "P#01JZ10H7X367VB2NF4YQ973DHW",
+    "tp": "product",
+    "name": "Rusted sword",
+    "qty": 1,
+    "price": 100
+  },
+  {
+    "pk": "U#rabinovich#P",
+    "sk": "P#01JZ10H7X367VB2NF4YQ973DHZ",
+    "tp": "product",
+    "id": "RUST101",
+    "name": "New sword",
+    "qty": 10,
+    "price": 200
+  }
+]

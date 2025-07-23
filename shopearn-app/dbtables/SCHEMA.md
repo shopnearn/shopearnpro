@@ -85,5 +85,5 @@ Below is a sample data layout in the #O shard:
 | U#rabinovich#O | O#01JZ10H7X367VB2NF4YQ973DXZ     | order metadata |
 | U#rabinovich#O | O#01JZ10H7X367VB2NF4YQ973DXZ#001 | order item 1   |
 
-The multi-shard design has the advantage of more precisely controlling the user access to its own data. For example, the profile shard can have read/write access pattern, whereas the Orders or Rewards shards can be read-only for the user, as they are updated asynchronously via a different process.
+The multishard design has the advantage of more precisely controlling the user access to its own data. For example, the profile shard can have read/write access pattern, whereas the Orders or Rewards shards can be read-only for the user, as they are updated asynchronously via a different process.
 

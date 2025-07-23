@@ -1,5 +1,5 @@
 StateMachineLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: /aws/states/state-machine-log-group
+    LogGroupName: /aws/states/state-machine-log-group${param:stageSuffix}
     RetentionInDays: 14

@@ -1,5 +1,5 @@
 stateMachine1:
-  name: stateMachine1-${sls:stage}
+  name: stateMachine1${param:stageSuffix}
   type: EXPRESS
   loggingConfig:
     level: ALL

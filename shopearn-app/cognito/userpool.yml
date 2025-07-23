@@ -1,6 +1,7 @@
 CognitoUserPool:
   Type: AWS::Cognito::UserPool
   Properties:
+    UserPoolName: ${self:custom.userPoolName}
     AdminCreateUserConfig:
       AllowAdminCreateUserOnly: true
       InviteMessageTemplate:
@@ -24,7 +25,6 @@ CognitoUserPool:
         RequireNumbers: true
         RequireSymbols: false
         RequireUppercase: true
-    UserPoolName: ${self:custom.userPoolName}
 CognitoUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
   Properties:
