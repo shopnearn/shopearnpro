@@ -1,4 +1,2 @@
 AWSLambdaPowerToolsLayerARM: 'arn:aws:lambda:${self:provider.region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-arm64:20'
 AWSLambdaPowerToolsLayerX86: 'arn:aws:lambda:${self:provider.region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-x86_64:20'
-
-

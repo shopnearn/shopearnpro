@@ -105,7 +105,6 @@ functions:
     iamRoleStatementsName: lambda-cart-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-cart-role.yml)}
     memorySize: 256
-    tracing: true
     layers:
       - ${self:custom.power_tools_layer}
       - !Ref AppLambdaLayer
@@ -143,7 +142,6 @@ functions:
     description: Market table stream processor (${sls:stage})
     iamRoleStatementsName: lambda-ddb-stream-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
-    tracing: true
     layers:
       - ${self:custom.power_tools_layer}
       - !Ref AppLambdaLayer
