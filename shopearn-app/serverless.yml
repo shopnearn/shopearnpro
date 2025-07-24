@@ -61,9 +61,9 @@ provider:
   logs:
     httpApi: true
   httpApi:
+    name: ${self:service}-http-api${param:stageSuffix}
     payload: '2.0'
     metrics: true
-    description: ${self:service} API Gateway (${self:custom.stageName})
     disableDefaultEndpoint: false
     authorizers:
       cognitoAuthorizer:
@@ -191,6 +191,8 @@ resources:
       Domain:
         Description: "Site URL"
         Value: "https://${param:domain}"
+        Export:
+          Name: ${self:service}-domain-${param:stageSuffix}
 
 stages:
   default:
@@ -221,5 +223,5 @@ plugins:
   - serverless-plugin-scripts
   - serverless-prune-plugin
 
-app: ${self:service}-app-${sls:stage}
-org: sapientum8
+app: ${self:service}-app
+org: ${self:service}${sls:stage}
