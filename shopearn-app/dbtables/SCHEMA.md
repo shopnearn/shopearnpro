@@ -9,8 +9,11 @@ The following Access Patterns are defined for the application.
 1. Display rewards for user
 2. Calculate reward distribution
 3. Display user profile
-4. Get the list of last N orders for user
-5. Get a single order with all its items by id
+4. Get a single order with all its items by id
+5. Show all listings by a seller 
+6. Fetch a listing by its ID 
+7. Display the list of last N orders for a buyer 
+8. Show order status by orderID
 
 ## Database Index Schema
 

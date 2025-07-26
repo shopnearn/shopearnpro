@@ -1,4 +1,4 @@
-# Useful AWS commands
+# AWS commands
 
 ### List AWS profiles
 
@@ -8,9 +8,11 @@
 
     aws configure list
 
+
+
 ### Verify AWS powertools layer version
 
-    aws lambda get-layer-version-by-arn --arn "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-x86_64:20" --profile shopnearn-dev
+    aws lambda get-layer-version-by-arn --arn "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-x86_64:20" --profile shopearn-dev
 
 ### copy data from bucket to directory
 
@@ -31,7 +33,7 @@
     
     aws cloudfront update-function --name my-function --function-config '{"Comment": "uses KVS","Runtime": "cloudfront-js-1.0","KeyValueStoreAssociations": [{ "KeyValueStoreARN": "arn:aws:cloudfront::<account-id>:key-value-store/my-redirects" }]}'--function-code file://index.js --stage DEVELOPMENT
 
-    aws cloudfront list-functions --profile shopnearn-dev
+    aws cloudfront list-functions --profile shopearn-dev
 
 resources:
 Resources:

@@ -1,6 +1,7 @@
 service: shopearn
 
 custom:
+  appName: ShopEarnPro
   #  customDomains:
   #    - http:
   #        stage: ${sls:stage}
@@ -104,7 +105,7 @@ functions:
   cart:
     handler: index.handler
     module: lambda/cart
-    description: Shopping cart service (${self:custom.stageName})
+    description: Application cart service (${self:custom.stageName})
     iamRoleStatementsName: lambda-cart-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-cart-role.yml)}
     memorySize: 256
@@ -142,7 +143,7 @@ functions:
   stream:
     handler: market.processor
     module: lambda/stream
-    description: Market table stream processor (${self:custom.stageName})
+    description: ${self:custom.db_table} table stream processor (${self:custom.stageName})
     iamRoleStatementsName: lambda-ddb-stream-role${param:stageSuffix}
     iamRoleStatements: ${file(iamroles/lambda-ddb-stream-role.yml)}
     layers:
@@ -181,7 +182,7 @@ stepFunctions:
     ${file(statemachines/state-machines.yml)}
 
 resources:
-  - Description: ShopEarnPro Application (${self:custom.stageName})
+  - Description: ${self:custom.appName} Application (${self:custom.stageName})
   - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
@@ -192,21 +193,20 @@ resources:
         Description: "Site URL"
         Value: "https://${param:domain}"
         Export:
-          Name: ${self:service}-domain-${param:stageSuffix}
+          Name: ${self:service}-domain${param:stageSuffix}
 
 stages:
   default:
     params:
       stageSuffix: '-${self:custom.stage}'
       stageSuffixCap: ${self:custom.stageName}
-      awsProfile: ${opt:aws-profile,"shopnearn-${sls:stage}"}
+      awsProfile: ${opt:aws-profile,"${self:service}-${sls:stage}"}
       domain: ${sls:stage}-${sls:instanceId}.${self:custom.domain}
       siteBucket: shopearn-${sls:stage}.s3.amazonaws.com
   prod:
     params:
       stageSuffix: ''
       stageSuffixCap: ''
-      awsProfile: ${opt:aws-profile}
       domain: app.${self:custom.domain}
       siteBucket: shopearn.s3.amazonaws.com
 
