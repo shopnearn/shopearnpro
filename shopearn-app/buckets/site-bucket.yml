@@ -1,15 +1,10 @@
 SiteBucket:
   Type: AWS::S3::Bucket
+  DeletionPolicy: Retain
   Properties:
-    BucketName: ${param:siteBucket}
+    BucketName: ${self:custom.siteBucket}
     PublicAccessBlockConfiguration:
       BlockPublicAcls: false
       BlockPublicPolicy: false
       IgnorePublicAcls: false
       RestrictPublicBuckets: false
-    LifecycleConfiguration:
-      Rules:
-        - Id: CleanupTemp
-          Status: Enabled
-          Prefix: temp/
-          ExpirationInDays: 7

@@ -2,6 +2,15 @@ service: shopearn
 
 custom:
   appName: ShopEarnPro
+  stage: ${opt:stage, 'dev'}
+  stageCap:
+    dev: Dev
+    dev1: Dev1
+    dev2: Dev2
+    qa: Qa
+    uat: Uat
+    prod: Prod
+  stageName: ${self:custom.stageCap.${self:custom.stage}}
   #  customDomains:
   #    - http:
   #        stage: ${sls:stage}
@@ -9,6 +18,7 @@ custom:
   #        basePath: ''
   #        apiType: http
   #        endpointType: REGIONAL
+  siteBucket: ${self:service}${param:stageSuffix}
   pythonRequirements:
     invalidateCaches: true
     pycache: false
@@ -20,20 +30,12 @@ custom:
       - '**/*.egg-info*'
       - '**/*.exe'
     slimPatternsAppendDefaults: false
-  stage: ${opt:stage, 'dev'}
-  stageCap:
-    dev: Dev
-    dev1: Dev1
-    dev2: Dev2
-    qa: Qa
-    uat: Uat
-    prod: Prod
-  stageName: ${self:custom.stageCap.${self:custom.stage}}
   prune:
     automatic: true
     number: 3
   scripts:
     hooks:
+      after:deploy:deploy: aws s3 sync frontend s3://${self:custom.siteBucket} --delete --profile ${param:awsProfile}
       after:deploy:finalize: serverless invoke --function init --aws-profile ${param:awsProfile} --stage ${self:custom.stage}
   userPoolName: ${self:service}-user-pool${param:stageSuffix}
   userPoolId:
@@ -183,10 +185,10 @@ stepFunctions:
 
 resources:
   - Description: ${self:custom.appName} Application (${self:custom.stageName})
-  - Resources: ${file(buckets/site-bucket.yml)}
   - Resources: ${file(statemachines/log-group.yml)}
   - Resources: ${file(cognito/userpool.yml)}
   - Resources: ${file(dbtables/market-table.yml)}
+  # - Resources: ${file(buckets/site-bucket.yml)}
   # - Resources: ${file(cloudfront/cloudfront.yml)}
   - Outputs:
       Domain:
@@ -202,13 +204,11 @@ stages:
       stageSuffixCap: ${self:custom.stageName}
       awsProfile: ${opt:aws-profile,"${self:service}-${sls:stage}"}
       domain: ${sls:stage}-${sls:instanceId}.${self:custom.domain}
-      siteBucket: shopearn-${sls:stage}.s3.amazonaws.com
   prod:
     params:
       stageSuffix: ''
       stageSuffixCap: ''
       domain: app.${self:custom.domain}
-      siteBucket: shopearn.s3.amazonaws.com
 
 package:
   individually: true
@@ -218,10 +218,10 @@ package:
 plugins:
   - serverless-iam-roles-per-function
   - serverless-python-requirements
-  # - serverless-domain-manager
   - serverless-step-functions
   - serverless-plugin-scripts
   - serverless-prune-plugin
+  # - serverless-domain-manager TODO: set up certificates
 
 app: ${self:service}-app
 org: ${self:service}${sls:stage}
